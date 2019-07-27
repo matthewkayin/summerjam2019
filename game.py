@@ -203,10 +203,10 @@ class Game():
             for y in range(0, len(self.room.tiles[0])):
                 if self.room.tiles[x][y] == 1:
                     pygame.draw.rect(self.screen, self.WHITE, (self.room.x_cord + (x * 20) - self.player.cx, self.room.y_cord + (y * 20) - self.player.cy, 20, 20), False)
-        for x in range(0, len(self.room_a.tiles)):
-            for y in range(0, len(self.room_a.tiles[0])):
-                if self.room_a.tiles[x][y] == 1:
-                    pygame.draw.rect(self.screen, self.WHITE, (self.room_a.x_cord + (x * 20) - self.player.cx, self.room_a.y_cord + (y * 20) - self.player.cy, 20, 20), False)
+        # for x in range(0, len(self.room_a.tiles)):
+        #     for y in range(0, len(self.room_a.tiles[0])):
+        #         if self.room_a.tiles[x][y] == 1:
+        #             pygame.draw.rect(self.screen, self.WHITE, (self.room_a.x_cord + (x * 20) - self.player.cx, self.room_a.y_cord + (y * 20) - self.player.cy, 20, 20), False)
 
         # render minnows
         for minnow in self.room.minnows:
