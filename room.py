@@ -20,7 +20,7 @@ class Tile:
 
 
 class Room:
-    def __init__(self, screen, width, height, left, right, top, bottom, center_pillar, x_cord, y_cord, tile_size = 20):
+    def __init__(self, screen, width, height, left, right, top, bottom, center_pillar, x_cord, y_cord, tile_size=20):
         self.screen = screen
         self.width = width
         self.height = height
