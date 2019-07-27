@@ -74,9 +74,9 @@ class Game():
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
-        self.room_a = room.Room("tbrl_pillars", 0, 0)
+        self.room = room.Room("tbrl_pillars", 0, 0)
         self.enemy = eel.Eel()
-        self.enemy.spawn([10, 100], [200, 300], [1, -1])
+        self.enemy.spawn([10, 10], [200, 210], [1, 0])
 
     def input(self):
         for event in pygame.event.get():
@@ -171,7 +171,24 @@ class Game():
                 del self.room.minnows[i]
                 break
 
-        self.enemy.update(delta, False)
+        player_sound = False
+        chase = False
+        if self.player.speeding:
+            player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
+            enemy_center = [self.enemy.x + (self.enemy.w / 2) - self.player.cx, self.enemy.y + (self.enemy.h / 2) - self.player.cy]
+            if (abs(player_center[0] - enemy_center[0]) <= self.enemy.LISTEN_DIST
+                    and abs(player_center[1] - enemy_center[1]) <= self.enemy.LISTEN_DIST):
+                player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
+        player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
+        enemy_center = [self.enemy.x + (self.enemy.w / 2) - self.player.cx, self.enemy.y + (self.enemy.h / 2) - self.player.cy]
+        see_dist = self.enemy.SEE_DIST
+        if self.player.using_light:
+            see_dist = 300
+        if (abs(player_center[0] - enemy_center[0]) <= see_dist
+                and abs(player_center[1] - enemy_center[1]) <= see_dist):
+            player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
+            chase = True
+        self.enemy.update(delta, player_sound, chase)
 
     def render(self):
         if not self.nolight:
@@ -216,7 +233,7 @@ class Game():
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # render enemies
-        pygame.draw.rect(self.screen, self.RED, (self.enemy.x - self.player.cx, self.enemy.y - self.player.cx, self.enemy.w, self.enemy.h), False)
+        pygame.draw.rect(self.screen, self.RED, (self.enemy.x - self.player.cx, self.enemy.y - self.player.cy, self.enemy.w, self.enemy.h), False)
 
         if not self.nolight:
             self.screen.blit(mask, (0, 0))
