@@ -131,7 +131,7 @@ class Game():
                     self.ihandler.key_up(axis_v_pos)
                     self.ihandler.key_down(axis_v_neg)
 
-    def update(self):
+    def update(self, delta):
         # handle inputs from ihandler
         event = ""
         while event != "EMPTY":
@@ -147,7 +147,7 @@ class Game():
         else:
             self.player.using_light = False
 
-        self.player.update()
+        self.player.update(delta)
 
     def render(self):
         mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
@@ -247,24 +247,28 @@ class Game():
 
     def run(self):
         SECOND = 1000
+        UPDATE_TIME = SECOND / 60
         before_time = pygame.time.get_ticks()
+        before_sec = before_time
         frames = 0
+        delta = 0
         while self.running:
             self.clock.tick(self.TARGET_FPS)
             if self.ihandler.is_mapping():
                 self.map_input()
             else:
                 self.input()
-                self.update()
+                self.update(delta)
                 self.render()
                 frames += 1
 
             after_time = pygame.time.get_ticks()
-            if after_time - before_time >= SECOND:
-                # print("FPS = " + str(frames))
+            delta = (after_time - before_time) / UPDATE_TIME
+            if after_time - before_sec >= SECOND:
                 self.fps_text = self.smallfont.render('FPS: ' + str(frames), False, self.GREEN)
                 frames = 0
-                before_time += SECOND
+                before_sec += SECOND
+            before_time = pygame.time.get_ticks()
 
     def quit(self):
         pygame.joystick.quit()

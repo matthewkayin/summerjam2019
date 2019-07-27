@@ -17,23 +17,26 @@ class Fish():
         self.ACC_SPEED = 0.02
         self.DEC_SPEED = 0.01
         self.MAX_VEL = 2
+        self.EXTRA_VEL = 2
+        self.EXTRA_ACC = 0.02
 
         self.using_light = False
+        self.speeding = False
 
-    def update(self):
+    def update(self, delta):
         # update player speed based on acceleration
-        self.dx += self.ax
-        self.dy += self.ay
+        self.dx += self.ax * delta
+        self.dy += self.ay * delta
 
         # apply decceleration from the water
         if self.dx > 0:
-            self.dx -= self.DEC_SPEED
+            self.dx -= self.DEC_SPEED * delta
         elif self.dx < 0:
-            self.dx += self.DEC_SPEED
+            self.dx += self.DEC_SPEED * delta
         if self.dy > 0:
-            self.dy -= self.DEC_SPEED
+            self.dy -= self.DEC_SPEED * delta
         elif self.dy < 0:
-            self.dy += self.DEC_SPEED
+            self.dy += self.DEC_SPEED * delta
 
         # if the player is above the max speed cap their speed
         if self.dx > self.MAX_VEL:
@@ -46,8 +49,8 @@ class Fish():
             self.dy = self.MAX_VEL
 
         # update the player position based on their speed
-        self.x += self.dx
-        self.y += self.dy
+        self.x += self.dx * delta
+        self.y += self.dy * delta
 
     def set_direction(self, inputs):
         self.ax = inputs[0] * self.ACC_SPEED
