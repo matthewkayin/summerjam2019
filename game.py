@@ -9,8 +9,8 @@ import ihandler
 
 class Game():
     def __init__(self):
-        self.SCREEN_WIDTH = 640
-        self.SCREEN_HEIGHT = 480
+        self.SCREEN_WIDTH = 1280
+        self.SCREEN_HEIGHT = 720
         self.TARGET_FPS = 60
 
         self.BLACK = (0, 0, 0)
@@ -20,7 +20,7 @@ class Game():
         self.BLUE = (0, 0, 255)
 
         pygame.init()
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
 
         # make image objects
@@ -68,7 +68,7 @@ class Game():
                 elif event.key == pygame.K_F2:
                     self.ihandler.start_mapping()
                 elif event.key == pygame.K_F3:
-                    self.show_fps = not self.showFps
+                    self.show_fps = not self.show_fps
                 else:
                     self.ihandler.key_down("K" + str(event.key))
             elif event.type == pygame.KEYUP:
