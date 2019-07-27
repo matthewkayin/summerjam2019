@@ -7,6 +7,7 @@ import os
 import sys
 import ihandler
 import fish
+import room
 
 
 class Game():
@@ -69,6 +70,7 @@ class Game():
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
+        self.room = room.Room([[1, 1, 1, 1, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 1, 1, 1, 1]], 0, 0)
 
     def input(self):
         for event in pygame.event.get():
@@ -178,6 +180,11 @@ class Game():
         pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
 
         self.screen.fill(self.GREEN)
+
+        for x in range(0, len(self.room.tiles)):
+            for y in range(0, len(self.room.tiles[0])):
+                if self.room.tiles[x][y] == 1:
+                    pygame.draw.rect(self.screen, self.WHITE, (self.room.x_cord + (x * 20), self.room.y_cord + (y * 20), 20, 20), False)
 
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
