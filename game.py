@@ -148,7 +148,7 @@ class Game():
             self.player.using_light = False
 
         if self.ihandler.get_state("FISH DASH"):
-            self.player.speeding = True
+            self.player.dash(player_inputs)
         else:
             self.player.speeding = False
 

@@ -62,3 +62,10 @@ class Fish():
     def set_direction(self, inputs):
         self.ax = inputs[0] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
         self.ay = inputs[1] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
+
+    def dash(self, inputs):
+        if (inputs[0] == 0 and inputs[1] == 0) or self.speeding:
+            return
+        self.dx = self.MAX_VEL * inputs[0]
+        self.dy = self.MAX_VEL * inputs[1]
+        self.speeding = True
