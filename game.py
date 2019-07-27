@@ -69,6 +69,8 @@ class Game():
         self.running = True
         self.show_fps = self.debug
 
+        self.gamestate = 0
+
         self.run()
         self.quit()
 
