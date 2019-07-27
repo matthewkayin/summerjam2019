@@ -8,6 +8,7 @@ import sys
 import ihandler
 import fish
 import room
+import eel
 
 
 class Game():
@@ -73,7 +74,9 @@ class Game():
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
-        self.room_a = room.Room("tbrl_pillars", 0, 0);
+        self.room_a = room.Room("tbrl_pillars", 0, 0)
+        self.enemy = eel.Eel()
+        self.enemy.spawn([10, 100], [200, 300], [1, -1])
 
     def input(self):
         for event in pygame.event.get():
@@ -168,6 +171,8 @@ class Game():
                 del self.room.minnows[i]
                 break
 
+        self.enemy.update(delta, False)
+
     def render(self):
         if not self.nolight:
             mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
@@ -193,6 +198,7 @@ class Game():
 
         self.screen.fill(self.GREEN)
 
+        # render room
         for x in range(0, len(self.room.tiles)):
             for y in range(0, len(self.room.tiles[0])):
                 if self.room.tiles[x][y] == 1:
@@ -202,17 +208,20 @@ class Game():
                 if self.room_a.tiles[x][y] == 1:
                     pygame.draw.rect(self.screen, self.WHITE, (self.room_a.x_cord + (x * 20) - self.player.cx, self.room_a.y_cord + (y * 20) - self.player.cy, 20, 20), False)
 
+        # render minnows
         for minnow in self.room.minnows:
             pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
 
+        # render player
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
-        # pygame.draw.rect(self.screen, self.RED, (pos[0], pos[1], 20, 20), False)
-        # self.screen.blit(self.image_ball, (pos[0], pos[1]))
+        # render enemies
+        pygame.draw.rect(self.screen, self.RED, (self.enemy.x - self.player.cx, self.enemy.y - self.player.cx, self.enemy.w, self.enemy.h), False)
 
         if not self.nolight:
             self.screen.blit(mask, (0, 0))
 
+        # render player HUD
         pygame.draw.rect(self.screen, self.YELLOW, (5, 5, self.player.energy, 20), False)
         pygame.draw.rect(self.screen, self.YELLOW, (5 + self.player.energy, 5, 100 - self.player.energy, 20), True)
         pygame.draw.rect(self.screen, self.BLUE, (115, 5, 20, 20), not self.player.can_dash())
