@@ -6,6 +6,7 @@ import pygame
 import os
 import sys
 import ihandler
+import fish
 
 
 class Game():
@@ -54,7 +55,7 @@ class Game():
         for i in range(0, self.joystick_count):
             pygame.joystick.Joystick(i).init()
             self.joystick_labels.append(self.joystick_label_pool[i])
-        self.ihandler = ihandler.IHandler(["AXIS SNEK HORIZ", "AXIS SNEK VERT", "RESET GAME"])
+        self.ihandler = ihandler.IHandler(["AXIS FISH HORIZ", "AXIS FISH VERT", "FISH DASH", "FISH LIGHT"])
 
         self.game_init()
 
@@ -66,7 +67,7 @@ class Game():
 
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
-        print("put game init stuff here")
+        self.player = fish.Fish()
 
     def input(self):
         for event in pygame.event.get():
@@ -74,7 +75,7 @@ class Game():
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F1:
-                    self.ihandler.loadMapping(False)
+                    self.ihandler.load_mapping(False)
                 elif event.key == pygame.K_F2:
                     self.ihandler.start_mapping()
                 elif event.key == pygame.K_F3:
@@ -130,17 +131,59 @@ class Game():
                     self.ihandler.key_up(axis_v_pos)
                     self.ihandler.key_down(axis_v_neg)
 
-    def update(self):
+    def update(self, delta):
         # handle inputs from ihandler
         event = ""
         while event != "EMPTY":
             event = self.ihandler.key_queue()
 
+        player_inputs = [0, 0]
+        player_inputs[0] = self.ihandler.get_state("AXIS FISH HORIZ")
+        player_inputs[1] = self.ihandler.get_state("AXIS FISH VERT")
+        self.player.set_direction(player_inputs)
+
+        if self.ihandler.get_state("FISH LIGHT"):
+            self.player.using_light = True
+        else:
+            self.player.using_light = False
+
+        if self.ihandler.get_state("FISH DASH"):
+            self.player.speeding = True
+        else:
+            self.player.speeding = False
+
+        self.player.update(delta)
+
     def render(self):
-        self.screen.fill(self.BLACK)
+        mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
+        mask.fill((0, 0, 0, 255))
+
+        lower_radius = int((self.player.w / 2) + 10)
+        radius = lower_radius + 30
+        t = 255
+        delta = 10
+        rdelta = int(10 / 4)
+        if self.player.using_light:
+            radius += 220
+            delta -= 5
+            rdelta = delta
+        light_location = (int(self.player.x + (self.player.w / 2)), int(self.player.y + (self.player.h / 2)))
+        while radius > lower_radius:
+            t -= delta
+            radius -= rdelta
+            pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
+        if not self.player.using_light:
+            t = 110
+        pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
+
+        self.screen.fill(self.GREEN)
+
+        pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # pygame.draw.rect(self.screen, self.RED, (pos[0], pos[1], 20, 20), False)
         # self.screen.blit(self.image_ball, (pos[0], pos[1]))
+
+        self.screen.blit(mask, (0, 0))
 
         if self.show_fps:
             self.screen.blit(self.fps_text, (0, 0))
@@ -209,24 +252,28 @@ class Game():
 
     def run(self):
         SECOND = 1000
+        UPDATE_TIME = SECOND / 60
         before_time = pygame.time.get_ticks()
+        before_sec = before_time
         frames = 0
+        delta = 0
         while self.running:
             self.clock.tick(self.TARGET_FPS)
             if self.ihandler.is_mapping():
                 self.map_input()
             else:
                 self.input()
-                self.update()
+                self.update(delta)
                 self.render()
                 frames += 1
 
             after_time = pygame.time.get_ticks()
-            if after_time - before_time >= SECOND:
-                # print("FPS = " + str(frames))
+            delta = (after_time - before_time) / UPDATE_TIME
+            if after_time - before_sec >= SECOND:
                 self.fps_text = self.smallfont.render('FPS: ' + str(frames), False, self.GREEN)
                 frames = 0
-                before_time += SECOND
+                before_sec += SECOND
+            before_time = pygame.time.get_ticks()
 
     def quit(self):
         pygame.joystick.quit()
