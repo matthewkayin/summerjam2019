@@ -24,10 +24,13 @@ class Game():
         self.YELLOW = (255, 255, 0)
 
         self.debug = False
+        self.nolight = False
 
-        if len(sys.argv) == 2:
-            if sys.argv[1] == "--debug":
+        for argument in sys.argv:
+            if argument == "--debug":
                 self.debug = True
+            elif argument == "--nolight":
+                self.nolight = True
 
         pygame.init()
         if self.debug:
@@ -194,26 +197,27 @@ class Game():
         self.player.update(delta)
 
     def render(self):
-        mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
-        mask.fill((0, 0, 0, 255))
+        if not self.nolight:
+            mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
+            mask.fill((0, 0, 0, 255))
 
-        lower_radius = int((self.player.w / 2) + 10)
-        radius = lower_radius + 30
-        t = 255
-        delta = 10
-        rdelta = int(10 / 4)
-        if self.player.using_light:
-            radius += 220
-            delta -= 5
-            rdelta = delta
-        light_location = (int(self.player.x + (self.player.w / 2)), int(self.player.y + (self.player.h / 2)))
-        while radius > lower_radius:
-            t -= delta
-            radius -= rdelta
+            lower_radius = int((self.player.w / 2) + 10)
+            radius = lower_radius + 30
+            t = 255
+            delta = 10
+            rdelta = int(10 / 4)
+            if self.player.using_light:
+                radius += 220
+                delta -= 5
+                rdelta = delta
+            light_location = (int(self.player.x + (self.player.w / 2)), int(self.player.y + (self.player.h / 2)))
+            while radius > lower_radius:
+                t -= delta
+                radius -= rdelta
+                pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
+            if not self.player.using_light:
+                t = 110
             pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
-        if not self.player.using_light:
-            t = 110
-        pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
 
         self.screen.fill(self.GREEN)
 
@@ -231,7 +235,8 @@ class Game():
         # pygame.draw.rect(self.screen, self.RED, (pos[0], pos[1], 20, 20), False)
         # self.screen.blit(self.image_ball, (pos[0], pos[1]))
 
-        self.screen.blit(mask, (0, 0))
+        if not self.nolight:
+            self.screen.blit(mask, (0, 0))
 
         pygame.draw.rect(self.screen, self.YELLOW, (5, 5, self.player.energy, 20), False)
         pygame.draw.rect(self.screen, self.YELLOW, (5 + self.player.energy, 5, 100 - self.player.energy, 20), True)
