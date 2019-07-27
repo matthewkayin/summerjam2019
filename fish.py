@@ -13,6 +13,14 @@ class Fish():
         self.dy = 0
         self.ax = 0
         self.ay = 0
+        self.cx = 0
+        self.cy = 0
+
+        self.CAMERA_THRESHOLD = 0.75
+        self.CAMERA_RIGHT = 1280 * self.CAMERA_THRESHOLD
+        self.CAMERA_LEFT = 1280 * (1 - self.CAMERA_THRESHOLD)
+        self.CAMERA_UP = 720 * (1 - self.CAMERA_THRESHOLD)
+        self.CAMERA_DOWN = 720 * self.CAMERA_THRESHOLD
 
         self.ACC_SPEED = 0.02
         self.DEC_SPEED = 0.01
@@ -66,6 +74,25 @@ class Fish():
         self.x += self.dx * delta
         self.y += self.dy * delta
 
+        # update the camera based on player movement
+        if self.x > self.CAMERA_RIGHT:
+            dist = self.x - self.CAMERA_RIGHT
+            self.cx += dist
+            self.x -= dist
+        elif self.x < self.CAMERA_LEFT:
+            dist = self.CAMERA_LEFT - self.x
+            self.cx -= dist
+            self.x += dist
+        if self.y > self.CAMERA_DOWN:
+            dist = self.y - self.CAMERA_DOWN
+            self.cy += dist
+            self.y -= dist
+        elif self.y < self.CAMERA_UP:
+            dist = self.CAMERA_UP - self.y
+            self.cy -= dist
+            self.y += dist
+
+        # update the players energy resources
         self.energy += self.ENERGY_TICK
         if self.energy > self.MAX_ENERGY:
             self.energy = self.MAX_ENERGY

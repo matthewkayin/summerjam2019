@@ -184,7 +184,7 @@ class Game():
         for x in range(0, len(self.room.tiles)):
             for y in range(0, len(self.room.tiles[0])):
                 if self.room.tiles[x][y] == 1:
-                    pygame.draw.rect(self.screen, self.WHITE, (self.room.x_cord + (x * 20), self.room.y_cord + (y * 20), 20, 20), False)
+                    pygame.draw.rect(self.screen, self.WHITE, (self.room.x_cord + (x * 20) - self.player.cx, self.room.y_cord + (y * 20) - self.player.cy, 20, 20), False)
 
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
