@@ -4,6 +4,7 @@
 
 import pygame
 import os
+import sys
 import ihandler
 
 
@@ -19,8 +20,17 @@ class Game():
         self.GREEN = (0, 255, 0)
         self.BLUE = (0, 0, 255)
 
+        self.debug = False
+
+        if len(sys.argv) == 2:
+            if sys.argv[1] == "--debug":
+                self.debug = True
+
         pygame.init()
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
+        if self.debug:
+            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        else:
+            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
 
         # make image objects
@@ -49,7 +59,7 @@ class Game():
         self.game_init()
 
         self.running = True
-        self.show_fps = False
+        self.show_fps = self.debug
 
         self.run()
         self.quit()
