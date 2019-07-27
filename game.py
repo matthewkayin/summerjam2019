@@ -145,12 +145,28 @@ class Game():
         self.player.update()
 
     def render(self):
-        self.screen.fill(self.BLACK)
+        mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
+        mask.fill((0, 0, 0, 255))
+
+        lower_radius = int((self.player.w / 2) + 10)
+        radius = lower_radius + 30
+        t = 255
+        delta = 10
+        light_location = (int(self.player.x + (self.player.w / 2)), int(self.player.y + (self.player.h / 2)))
+        while radius > lower_radius:
+            t -= delta
+            radius -= int(delta / 4)
+            pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
+        pygame.draw.circle(mask, (0, 0, 0, 110), light_location, radius)
+
+        self.screen.fill(self.GREEN)
 
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # pygame.draw.rect(self.screen, self.RED, (pos[0], pos[1], 20, 20), False)
         # self.screen.blit(self.image_ball, (pos[0], pos[1]))
+
+        self.screen.blit(mask, (0, 0))
 
         if self.show_fps:
             self.screen.blit(self.fps_text, (0, 0))
