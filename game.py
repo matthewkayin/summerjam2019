@@ -6,6 +6,7 @@ import pygame
 import os
 import sys
 import ihandler
+import fish
 
 
 class Game():
@@ -54,7 +55,7 @@ class Game():
         for i in range(0, self.joystick_count):
             pygame.joystick.Joystick(i).init()
             self.joystick_labels.append(self.joystick_label_pool[i])
-        self.ihandler = ihandler.IHandler(["AXIS SNEK HORIZ", "AXIS SNEK VERT", "RESET GAME"])
+        self.ihandler = ihandler.IHandler(["AXIS FISH HORIZ", "AXIS FISH VERT"])
 
         self.game_init()
 
@@ -66,7 +67,7 @@ class Game():
 
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
-        print("put game init stuff here")
+        self.player = fish.Fish()
 
     def input(self):
         for event in pygame.event.get():
@@ -74,7 +75,7 @@ class Game():
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F1:
-                    self.ihandler.loadMapping(False)
+                    self.ihandler.load_mapping(False)
                 elif event.key == pygame.K_F2:
                     self.ihandler.start_mapping()
                 elif event.key == pygame.K_F3:
@@ -136,8 +137,17 @@ class Game():
         while event != "EMPTY":
             event = self.ihandler.key_queue()
 
+        player_inputs = [0, 0]
+        player_inputs[0] = self.ihandler.get_state("AXIS FISH HORIZ")
+        player_inputs[1] = self.ihandler.get_state("AXIS FISH VERT")
+        self.player.set_direction(player_inputs)
+
+        self.player.update()
+
     def render(self):
         self.screen.fill(self.BLACK)
+
+        pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # pygame.draw.rect(self.screen, self.RED, (pos[0], pos[1], 20, 20), False)
         # self.screen.blit(self.image_ball, (pos[0], pos[1]))

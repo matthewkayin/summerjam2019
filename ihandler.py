@@ -28,6 +28,7 @@ class IHandler():
     def key_down(self, key):
         if self.map_index == len(self.map):
             # if we've used the key before or if the key isn't an axis but we're mapping an axis, don't map the key
+            # there's a key mapping bug because of this if statement right here
             if (key in self.used_inputs
                     or (self.names[self.map_index].startswith("AXIS ") and ("x" not in key or "+" in key or "-" in key))
                     or (("+" in key or "-" in key) and key[:-1] in self.used_inputs)):
