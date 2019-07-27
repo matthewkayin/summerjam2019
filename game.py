@@ -9,6 +9,7 @@ import ihandler
 import fish
 import room
 import eel
+import math
 
 
 class Game():
@@ -74,13 +75,10 @@ class Game():
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
-<<<<<<< HEAD
-        self.room = room.Room("tbrl_pillars", 0, 0)
+        self.level_one = room.MapMaker(0, 0, 15)
         self.enemy = eel.Eel()
         self.enemy.spawn([10, 10], [200, 210], [1, 0])
-=======
-        self.level_one = room.MapMaker(0, 0, 15)
->>>>>>> f03178917b38d3c1629511b32ef91d3d27220a71
+        self.player_room = [0, 0]
 
     def input(self):
         for event in pygame.event.get():
@@ -166,8 +164,20 @@ class Game():
             self.player.speeding = False
 
         self.player.update(delta)
+        room_x = (self.player.x + self.player.cx) / self.SCREEN_WIDTH
+        if room_x > 0:
+            room_x = math.floor(room_x)
+        elif room_x < 0:
+            room_x = -math.ceil(-room_x)
+        room_x *= self.SCREEN_WIDTH
+        room_y = (self.player.y + self.player.cy) / self.SCREEN_HEIGHT
+        if room_y > 0:
+            room_y = math.floor(room_y)
+        elif room_y < 0:
+            room_y = -math.ceil(-room_y)
+        room_y *= self.SCREEN_HEIGHT
+        self.player_room = [room_x, room_y]
 
-        playerRect = pygame.Rect(self.player.x, self.player.y, self.player.w, self.player.h)
         # for i in range(0, len(self.room.minnows)):
         #     minnowRect = pygame.Rect(self.room.x_cord + (self.room.minnows[i][0] * 20) - self.player.cx, self.room.y_cord + (self.room.minnows[i][1] * 20) - self.player.cy, 20, 20)
         #     if playerRect.colliderect(minnowRect):
@@ -221,12 +231,20 @@ class Game():
 
         # render room
         for i in range(0, len(self.level_one.rooms)):
+            if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                continue
+            if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                continue
             for minnow in self.level_one.rooms[i].minnows:
                 pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
             for x in range(0, len(self.level_one.rooms[i].tiles)):
                 for y in range(0, len(self.level_one.rooms[i].tiles[0])):
+                    x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
+                    y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
+                    if x_val + 20 < 0 or x_val >= self.SCREEN_WIDTH or y_val + 20 < 0 or y_val >= self.SCREEN_HEIGHT:
+                        continue
                     if self.level_one.rooms[i].tiles[x][y] == 1:
-                        pygame.draw.rect(self.screen, self.WHITE, (self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy, 20, 20), False)
+                        pygame.draw.rect(self.screen, self.WHITE, (x_val, y_val, 20, 20), False)
 
         # render player
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
