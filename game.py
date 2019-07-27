@@ -147,6 +147,11 @@ class Game():
         else:
             self.player.using_light = False
 
+        if self.ihandler.get_state("FISH DASH"):
+            self.player.speeding = True
+        else:
+            self.player.speeding = False
+
         self.player.update(delta)
 
     def render(self):
