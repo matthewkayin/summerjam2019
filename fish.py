@@ -18,6 +18,8 @@ class Fish():
         self.DEC_SPEED = 0.01
         self.MAX_VEL = 2
 
+        self.using_light = False
+
     def update(self):
         # update player speed based on acceleration
         self.dx += self.ax

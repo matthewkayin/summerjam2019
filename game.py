@@ -55,7 +55,7 @@ class Game():
         for i in range(0, self.joystick_count):
             pygame.joystick.Joystick(i).init()
             self.joystick_labels.append(self.joystick_label_pool[i])
-        self.ihandler = ihandler.IHandler(["AXIS FISH HORIZ", "AXIS FISH VERT"])
+        self.ihandler = ihandler.IHandler(["AXIS FISH HORIZ", "AXIS FISH VERT", "FISH DASH", "FISH LIGHT"])
 
         self.game_init()
 
@@ -142,6 +142,11 @@ class Game():
         player_inputs[1] = self.ihandler.get_state("AXIS FISH VERT")
         self.player.set_direction(player_inputs)
 
+        if self.ihandler.get_state("FISH LIGHT"):
+            self.player.using_light = True
+        else:
+            self.player.using_light = False
+
         self.player.update()
 
     def render(self):
@@ -152,12 +157,19 @@ class Game():
         radius = lower_radius + 30
         t = 255
         delta = 10
+        rdelta = int(10 / 4)
+        if self.player.using_light:
+            radius += 220
+            delta -= 5
+            rdelta = delta
         light_location = (int(self.player.x + (self.player.w / 2)), int(self.player.y + (self.player.h / 2)))
         while radius > lower_radius:
             t -= delta
-            radius -= int(delta / 4)
+            radius -= rdelta
             pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
-        pygame.draw.circle(mask, (0, 0, 0, 110), light_location, radius)
+        if not self.player.using_light:
+            t = 110
+        pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
 
         self.screen.fill(self.GREEN)
 
