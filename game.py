@@ -20,6 +20,7 @@ class Game():
         self.RED = (255, 0, 0)
         self.GREEN = (0, 255, 0)
         self.BLUE = (0, 0, 255)
+        self.YELLOW = (255, 255, 0)
 
         self.debug = False
 
@@ -148,7 +149,7 @@ class Game():
             self.player.using_light = False
 
         if self.ihandler.get_state("FISH DASH"):
-            self.player.speeding = True
+            self.player.dash(player_inputs)
         else:
             self.player.speeding = False
 
@@ -184,6 +185,10 @@ class Game():
         # self.screen.blit(self.image_ball, (pos[0], pos[1]))
 
         self.screen.blit(mask, (0, 0))
+
+        pygame.draw.rect(self.screen, self.YELLOW, (5, 5, self.player.energy, 20), False)
+        pygame.draw.rect(self.screen, self.YELLOW, (5 + self.player.energy, 5, 100 - self.player.energy, 20), True)
+        pygame.draw.rect(self.screen, self.BLUE, (115, 5, 20, 20), not self.player.can_dash())
 
         if self.show_fps:
             self.screen.blit(self.fps_text, (0, 0))

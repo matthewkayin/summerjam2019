@@ -23,6 +23,13 @@ class Fish():
         self.using_light = False
         self.speeding = False
 
+        self.energy = 100
+        self.MAX_ENERGY = 100
+        self.ENERGY_TICK = 1 / 30
+        self.DASH_COST = 30
+        self.RUN_COST = 1 / 2
+        self.LIGHT_COST = 1 / 4
+
     def update(self, delta):
         max_dx = self.dx
         max_dy = self.dy
@@ -59,6 +66,32 @@ class Fish():
         self.x += self.dx * delta
         self.y += self.dy * delta
 
+        self.energy += self.ENERGY_TICK
+        if self.energy > self.MAX_ENERGY:
+            self.energy = self.MAX_ENERGY
+        if self.speeding:
+            if self.energy < self.RUN_COST:
+                self.speeding = False
+            else:
+                self.energy -= self.RUN_COST
+        if self.using_light:
+            if self.energy < self.LIGHT_COST:
+                self.using_light = False
+            else:
+                self.energy -= self.LIGHT_COST
+
     def set_direction(self, inputs):
         self.ax = inputs[0] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
         self.ay = inputs[1] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
+
+    def dash(self, inputs):
+        DASH_COST = 30
+        if (inputs[0] == 0 and inputs[1] == 0) or self.speeding or self.energy < DASH_COST:
+            return
+        self.energy -= DASH_COST
+        self.dx = self.MAX_VEL * inputs[0]
+        self.dy = self.MAX_VEL * inputs[1]
+        self.speeding = True
+
+    def can_dash(self):
+        return self.energy >= self.DASH_COST
