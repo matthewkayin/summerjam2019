@@ -10,18 +10,25 @@ class Room:
         self.bottom = bottom
         self.right = right
         self.left = left
-        if top:
+        if self.top:
             self.top_used()
-        if bottom:
+        if self.bottom:
             self.bottom_used()
-        if left:
+        if self.left:
             self.left_used()
-        if right:
+        if self.right:
             self.right_used()
+
+        data = []
 
         map_file = open("Rooms/" + file_name + ".txt", "r")
         for line in map_file.read().splitlines():
-            self.tiles.append(list(map(int, line.split(" "))))
+            data.append(list(map(int, line.split(" "))))
+
+        for x in range(0, len(data[0])):
+            self.tiles.append([])
+            for y in range(0, len(data)):
+                self.tiles[x].append(data[y][x])
 
         for x in range(0, len(self.tiles)):
             for y in range(0, len(self.tiles[0])):
@@ -29,22 +36,34 @@ class Room:
                     self.minnows.append([x, y])
 
     def close_entrances(self):
-        [1 if x == 6 else x for x in self.tiles]
-        [1 if x == 7 else x for x in self.tiles]
-        [1 if x == 8 else x for x in self.tiles]
-        [1 if x == 9 else x for x in self.tiles]
+        for x in range(0, len(self.tiles)):
+            for y in range(0, len(self.tiles[0])):
+                if self.tiles[x][y] > 5:
+                    self.tiles[x][y] = 1
 
     def top_used(self):
-        [0 if x == 9 else x for x in self.tiles]
+        for x in range(0, len(self.tiles)):
+            for y in range(0, len(self.tiles[0])):
+                if self.tiles[x][y] == 9:
+                    self.tiles[x][y] = 0
 
     def right_used(self):
-        [0 if x == 8 else x for x in self.tiles]
+        for x in range(0, len(self.tiles)):
+            for y in range(0, len(self.tiles[0])):
+                if self.tiles[x][y] == 8:
+                    self.tiles[x][y] = 0
 
     def bottom_used(self):
-        [0 if x == 7 else x for x in self.tiles]
+        for x in range(0, len(self.tiles)):
+            for y in range(0, len(self.tiles[0])):
+                if self.tiles[x][y] == 7:
+                    self.tiles[x][y] = 0
 
     def left_used(self):
-        [0 if x == 6 else x for x in self.tiles]
+        for x in range(0, len(self.tiles)):
+            for y in range(0, len(self.tiles[0])):
+                if self.tiles[x][y] == 6:
+                    self.tiles[x][y] = 0
 
 
 class MapMaker:
@@ -60,11 +79,11 @@ class MapMaker:
         self.rooms.append(starting_room)
         for x in range(0, self.max_rooms):
             dir_set = False
-            while( dir_set == False):
+            while(dir_set == False):
                 direction = random.randint(0, 3)
                 if direction == 0:
                     if not self.rooms[x].top:
-                        curr_y -= 1280
+                        curr_y -= 720
                         self.rooms[x].top_used
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, True, False, False)
@@ -72,7 +91,7 @@ class MapMaker:
                         dir_set = True
                 elif direction == 1:
                     if not self.rooms[x].right:
-                        curr_x += 720
+                        curr_x += 1280
                         self.rooms[x].right_used
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, False, True)
@@ -80,7 +99,7 @@ class MapMaker:
                         dir_set = True
                 elif direction == 2:
                     if not self.rooms[x].bottom:
-                        curr_y += 1280
+                        curr_y += 720
                         self.rooms[x].bottom_used
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, True, False, False, False)
@@ -88,11 +107,11 @@ class MapMaker:
                         dir_set = True
                 else:
                     if not self.rooms[x].left:
-                        curr_x -= 720
+                        curr_x -= 1280
                         self.rooms[x].left_used
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False)
                         self.rooms.append(new_room)
                         dir_set = True
-        for x in range(0, len(self.rooms)):
+        for x in range(0, len(self.rooms) - 1):
             self.rooms[x].close_entrances()
