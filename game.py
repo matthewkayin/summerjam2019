@@ -73,7 +73,7 @@ class Game():
     def game_init(self):
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
-        self.room = room.Room("tbrl_pillars", 0, 0)
+        self.level_one = room.MapMaker(0, 0, 15)
 
     def input(self):
         for event in pygame.event.get():
@@ -161,12 +161,12 @@ class Game():
         self.player.update(delta)
 
         playerRect = pygame.Rect(self.player.x, self.player.y, self.player.w, self.player.h)
-        for i in range(0, len(self.room.minnows)):
-            minnowRect = pygame.Rect(self.room.x_cord + (self.room.minnows[i][0] * 20) - self.player.cx, self.room.y_cord + (self.room.minnows[i][1] * 20) - self.player.cy, 20, 20)
-            if playerRect.colliderect(minnowRect):
-                self.player.energy = self.player.MAX_ENERGY
-                del self.room.minnows[i]
-                break
+        # for i in range(0, len(self.room.minnows)):
+        #     minnowRect = pygame.Rect(self.room.x_cord + (self.room.minnows[i][0] * 20) - self.player.cx, self.room.y_cord + (self.room.minnows[i][1] * 20) - self.player.cy, 20, 20)
+        #     if playerRect.colliderect(minnowRect):
+        #         self.player.energy = self.player.MAX_ENERGY
+        #         del self.room.minnows[i]
+        #         break
 
     def render(self):
         if not self.nolight:
@@ -193,17 +193,25 @@ class Game():
 
         self.screen.fill(self.GREEN)
 
-        for x in range(0, len(self.room.tiles)):
-            for y in range(0, len(self.room.tiles[0])):
-                if self.room.tiles[x][y] == 1:
-                    pygame.draw.rect(self.screen, self.WHITE, (self.room.x_cord + (x * 20) - self.player.cx, self.room.y_cord + (y * 20) - self.player.cy, 20, 20), False)
+        for i in range(0, len(self.level_one.rooms)):
+            for minnow in self.level_one.rooms[i].minnows:
+                pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
+            for x in range(0, len(self.level_one.rooms[i].tiles)):
+                for y in range(0, len(self.level_one.rooms[i].tiles[0])):
+                    if self.level_one.rooms[i].tiles[x][y] == 1:
+                        pygame.draw.rect(self.screen, self.WHITE, (self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy, 20, 20), False)
+
+        # for x in range(0, len(self.room.tiles)):
+        #     for y in range(0, len(self.room.tiles[0])):
+        #         if self.room.tiles[x][y] == 1:
+        #             pygame.draw.rect(self.screen, self.WHITE, (self.room.x_cord + (x * 20) - self.player.cx, self.room.y_cord + (y * 20) - self.player.cy, 20, 20), False)
         # for x in range(0, len(self.room_a.tiles)):
         #     for y in range(0, len(self.room_a.tiles[0])):
         #         if self.room_a.tiles[x][y] == 1:
         #             pygame.draw.rect(self.screen, self.WHITE, (self.room_a.x_cord + (x * 20) - self.player.cx, self.room_a.y_cord + (y * 20) - self.player.cy, 20, 20), False)
 
-        for minnow in self.room.minnows:
-            pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
+        # for minnow in self.room.minnows:
+        #     pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
 
         pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
