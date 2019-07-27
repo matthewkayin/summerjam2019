@@ -12,11 +12,11 @@ class Tile:
 
     def draw_tile(self):
         if self.is_wall:
-            pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.size, self.size), False)
+            pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.size, self.size), 0)
         elif self.is_pillar:
-            pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.size, self.size), False)
+            pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.size, self.size), 0)
         else:
-            pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.size, self.size), False)
+            pygame.draw.rect(self.screen, (255, 255, 255), (self.x, self.y, self.size, self.size), 0)
 
 
 class Room:
@@ -38,17 +38,14 @@ class Room:
             for y in range(self.y_cord, self.y_cord + self.height * tile_size, tile_size):
                 y_tile = int(y - self.y_cord / tile_size)
                 array.append([x_tile, y_tile])
-                len = array.len()
-                array[len] = Tile(screen, tile_size, False, False, x, y)
+                array_size = len(array)
+                array[array_size - 1] = Tile(screen, tile_size, False, False, x, y)
         # self.center_pillar = center_pillar
 
     def create_room(self, screen, line_color, thickness):
         # pygame.draw.lines(screen, color, closed, pointlist, thickness)
-        for x in range(self.x_cord, self.x_cord + self.width * self.tile_size, self.tile_size):
-            for y in range(self.y_cord, self.y_cord + self.height * self.tile_size, self.tile_size):
-                x_tile = int(x - self.x_cord / self.tile_size)
-                y_tile = int(y - self.y_cord / self.tile_size)
-                self.array[x_tile][y_tile].draw_tile
+        for x in self.array:
+            self.array[x].draw_tile()
         # if (self.top):
         #     # while self.x_cord < self.x_cord + self.width:
         #     pygame.draw.lines(screen, line_color, False, [(self.x_cord, self.y_cord), (self.x_cord + (self.width - self.player_size) / 2, self.y_cord)], thickness)
