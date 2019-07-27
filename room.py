@@ -10,14 +10,6 @@ class Room:
         self.bottom = bottom
         self.right = right
         self.left = left
-        if self.top:
-            self.top_used()
-        if self.bottom:
-            self.bottom_used()
-        if self.left:
-            self.left_used()
-        if self.right:
-            self.right_used()
 
         data = []
 
@@ -34,6 +26,15 @@ class Room:
             for y in range(0, len(self.tiles[0])):
                 if self.tiles[x][y] == 2:
                     self.minnows.append([x, y])
+
+        if self.top:
+            self.top_used()
+        if self.bottom:
+            self.bottom_used()
+        if self.left:
+            self.left_used()
+        if self.right:
+            self.right_used()
 
     def close_entrances(self):
         for x in range(0, len(self.tiles)):
@@ -84,7 +85,7 @@ class MapMaker:
                 if direction == 0:
                     if not self.rooms[x].top:
                         curr_y -= 720
-                        self.rooms[x].top_used
+                        self.rooms[x].top_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, True, False, False)
                         self.rooms.append(new_room)
@@ -92,7 +93,7 @@ class MapMaker:
                 elif direction == 1:
                     if not self.rooms[x].right:
                         curr_x += 1280
-                        self.rooms[x].right_used
+                        self.rooms[x].right_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, False, True)
                         self.rooms.append(new_room)
@@ -100,7 +101,7 @@ class MapMaker:
                 elif direction == 2:
                     if not self.rooms[x].bottom:
                         curr_y += 720
-                        self.rooms[x].bottom_used
+                        self.rooms[x].bottom_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, True, False, False, False)
                         self.rooms.append(new_room)
@@ -108,7 +109,7 @@ class MapMaker:
                 else:
                     if not self.rooms[x].left:
                         curr_x -= 1280
-                        self.rooms[x].left_used
+                        self.rooms[x].left_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False)
                         self.rooms.append(new_room)
