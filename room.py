@@ -52,11 +52,7 @@ class MapMaker:
         self.x_cord = x_cord
         self.y_cord = y_cord
         self.max_rooms = max_rooms
-        # self.right_rooms = ["brl_empty", "brl_pillars", "tbl_A", "tbl_empty", "tbrl_A", "tbrl_B", "tbrl_pillars"]
-        # self.left_rooms = ["brl_empty", "brl_pillars", "tbrl_A", "tbrl_B", "tbrl_pillars", "tbrl_pillars"]
-        # self.top_rooms = ["brl_pillars", "tbl_A", "tbrl_B", "tbl_A", "tbrl_pillars"]
-        # self.bottom_rooms = ["tbrl_A", "tbrl_B", "tbrl_pillars", "trl_pillars"]
-        self.possible_rooms = ["tbrl_A", "tbrl_B", "tbrl_pillars"]
+        self.possible_rooms = ["tbrl_A", "tbrl_B", "tbrl_pillars", "tbrl_C"]
         self.rooms = []
         curr_x = x_cord
         curr_y = y_cord
