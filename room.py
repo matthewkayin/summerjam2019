@@ -37,7 +37,9 @@ class Room:
             x_tile = int(x - self.x_cord / tile_size)
             array.append([x_tile])
             for y in range(self.y_cord, self.y_cord + self.height * tile_size, tile_size):
-                array[x_tile].append(Tile(screen, tile_size, False, False, x, y))
+                y_tile = int(y - self.y_cord / tile_size)
+                array[x_tile].append[y_cord]
+                array[x_tile][y_tile] = Tile(screen, tile_size, False, False, x, y)
         # self.center_pillar = center_pillar
 
     def create_room(self, screen, line_color, thickness):
