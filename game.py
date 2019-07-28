@@ -10,6 +10,7 @@ import fish
 import room
 import eel
 import math
+import random
 
 
 class Game():
@@ -50,6 +51,7 @@ class Game():
             self.image_minnow.append(pygame.image.load("res/gfx/minnow_" + str(i) + ".png"))
         self.image_wall = pygame.image.load("res/gfx/wall.png")
         self.image_floor = pygame.image.load("res/gfx/floor.png")
+        self.image_title = pygame.image.load("res/gfx/title.png")
 
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
@@ -57,6 +59,7 @@ class Game():
         self.sound_capture = pygame.mixer.Sound("res/sfx/capture.wav")
         self.sound_eel_attack = pygame.mixer.Sound("res/sfx/eel-attack.wav")
         self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
+        self.sound_eel_close = [pygame.mixer.Sound("res/sfx/eel-close-one.wav"), pygame.mixer.Sound("res/sfx/eel-close-two.wav")]
 
         pygame.font.init()
         self.smallfont = pygame.font.SysFont("Serif", 14)
@@ -130,6 +133,9 @@ class Game():
         self.minnow_MAX = 10
         self.minnow_frame = 0
         self.minnow_MFRAME = 17
+
+        self.eel_sfreq = 120
+        self.eel_SMAX = 120
 
     def input(self):
         for event in pygame.event.get():
@@ -305,6 +311,14 @@ class Game():
         for i in range(0, len(self.enemies) - 1):
             self.enemies[i].update(delta, False, False)
             enemy_rect = pygame.Rect(self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h)
+            if (abs(player_rect[0] - enemy_rect[0]) <= self.enemies[i].LISTEN_DIST and abs(player_rect[1] - enemy_rect[1]) <= self.enemies[i].LISTEN_DIST):
+                self.eel_sfreq += 1
+                if self.eel_sfreq >= self.eel_SMAX:
+                    self.eel_sfreq = 0
+                    self.sound_eel_close[random.randint(0, 1)].play()
+            else:
+                self.eel_sfreq = 120
+
             if player_rect.colliderect(enemy_rect):
                 pygame.draw.rect(self.screen, self.YELLOW, enemy_rect, False)
                 self.sound_eel_attack.play()
@@ -328,11 +342,7 @@ class Game():
 
         if self.gamestate == 0:
 
-            self.screen.fill(self.BLACK)
-            header = self.bigfont.render("Sea Nothing", False, self.WHITE)
-            instructions = self.bigfont.render("Press A to start", False, self.WHITE)
-            self.screen.blit(header, (self.SCREEN_WIDTH / 8, self.SCREEN_HEIGHT / 2 - 50))
-            self.screen.blit(instructions, (self.SCREEN_WIDTH / 8, self.SCREEN_HEIGHT / 2 - 20))
+            self.screen.blit(self.image_title, (0, 0))
 
             pygame.display.flip()
 
