@@ -83,8 +83,14 @@ class Game():
         # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
         self.level_one = room.MapMaker(0, 0, 15)
-        self.enemy = eel.Eel()
-        self.enemy.spawn([10, 10], [200, 210], [1, 0])
+        self.enemies = []
+        num_eels = 0
+        for i in range(0, len(self.level_one.rooms) - 1):
+            for j in range(0, len(self.level_one.rooms[i].eels) - 1):
+                self.enemies.append(eel.Eel())
+                self.enemies[num_eels].spawn(self.level_one.rooms[i].eels[j])
+                num_eels += 1
+
         self.player_room = [0, 0]
         self.player_safe = [self.player.x, self.player.y]
 
@@ -262,20 +268,23 @@ class Game():
         chase = False
         if self.player.speeding:
             player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-            enemy_center = [self.enemy.x + (self.enemy.w / 2) - self.player.cx, self.enemy.y + (self.enemy.h / 2) - self.player.cy]
-            if (abs(player_center[0] - enemy_center[0]) <= self.enemy.LISTEN_DIST
-                    and abs(player_center[1] - enemy_center[1]) <= self.enemy.LISTEN_DIST):
-                player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
+            for i in range(0, len(self.enemies) - 1):
+                self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
+                if (abs(player_center[0] - self.enemies[i].center[0]) <= self.enemies[i].LISTEN_DIST
+                        and abs(player_center[1] - self.enemies[i].center[1]) <= self.enemies[i].LISTEN_DIST):
+                    player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
         player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-        enemy_center = [self.enemy.x + (self.enemy.w / 2) - self.player.cx, self.enemy.y + (self.enemy.h / 2) - self.player.cy]
-        see_dist = self.enemy.SEE_DIST
+        for i in range(0, len(self.enemies) - 1):
+            self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
+            see_dist = self.enemies[i].SEE_DIST
         if self.player.using_light:
             see_dist = 300
-        if (abs(player_center[0] - enemy_center[0]) <= see_dist
-                and abs(player_center[1] - enemy_center[1]) <= see_dist):
-            player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
-            chase = True
-        self.enemy.update(delta, player_sound, chase)
+        for i in range(0, len(self.enemies) - 1):
+            if (abs(player_center[0] - self.enemies[i].center[0]) <= see_dist
+                    and abs(player_center[1] - self.enemies.center[1]) <= see_dist):
+                player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
+                chase = True
+            self.enemies[i].update(delta, player_sound, chase)
 
     def render(self):
 
@@ -337,7 +346,8 @@ class Game():
         # pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # render enemies
-        pygame.draw.rect(self.screen, self.RED, (self.enemy.x - self.player.cx, self.enemy.y - self.player.cy, self.enemy.w, self.enemy.h), False)
+        for i in range(0, len(self.enemies) - 1):
+            pygame.draw.rect(self.screen, self.RED, (self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h), False)
 
         if not self.nolight:
             self.screen.blit(mask, (0, 0))
