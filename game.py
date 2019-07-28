@@ -299,7 +299,7 @@ class Game():
                 if player_rect.colliderect(minnow_rect):
                     self.player.energy = self.player.MAX_ENERGY
                     del self.level_one.rooms[i].minnows[j]
-                    self.sound_light.play()
+                    self.sound_capture.play()
                     break
 
         player_sound = False
@@ -314,8 +314,8 @@ class Game():
             room_indices.append(i)
 
         for i in range(0, len(self.enemies) - 1):
-            # if not self.enemies[i].room in room_indices:
-            #    continue
+            if not self.enemies[i].room in room_indices:
+                continue
             player_sound = False
             chase = False
             self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
@@ -331,8 +331,8 @@ class Game():
                 player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
-            enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
-            '''
+            enemy_rect = pygame.Rect(self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h)
+
             for i in range(0, len(self.level_one.rooms)):
                 if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
                     continue
@@ -351,13 +351,14 @@ class Game():
                         break
                 if wall_collision:
                     break
-            # if wall_collision:
-            #    while enemy_rect.colliderect(tile_rect):
-            #         self.enemies[i].x -= self.enemies[i].dx
-            #         self.enemies[i].y -= self.enemies[i].dy
-            #         enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
-            '''
+            if wall_collision:
+                while enemy_rect.colliderect(tile_rect):
+                    self.enemies[i].x -= self.enemies[i].dx
+                    self.enemies[i].y -= self.enemies[i].dy
+                    enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+
             if player_rect.colliderect(enemy_rect):
+                pygame.draw.rect(self.screen, self.YELLOW, enemy_rect, False)
                 self.sound_eel_attack.play()
                 self.gamestate = 0
 

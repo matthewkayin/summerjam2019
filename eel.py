@@ -15,7 +15,7 @@ class Eel():
 
         self.SPEED = 0.5
         self.EXTRA_SPEED = 3.8
-        self.PACE_LENGTH = 700
+        self.PACE_LENGTH = 500
         self.PROX_THRESHOLD = 1
 
         self.follow_location = [0, 0]
@@ -66,6 +66,6 @@ class Eel():
             if self.y > self.follow_location[1]:
                 dirY = -1
             self.dy = (self.SPEED + (self.EXTRA_SPEED * self.chasing)) * delta * dirY
-            self.x += self.dy
+            self.y += self.dy
         else:
             self.dy = 0

@@ -37,7 +37,7 @@ class Room:
         if self.include_eel:
             x = int(len(self.tiles) / 2)
             center = self.x_cord + (x * 20)
-            self.eels.append([[center, center], [self.y_cord + 320, self.y_cord + 400], [0, 1]])
+            self.eels.append([[center, center], [self.y_cord + 20, self.y_cord + 20], [0, 1]])
 
         # num_eels = 1
         # for i in range(0, num_eels):
@@ -103,10 +103,10 @@ class MapMaker:
         curr_x = x_cord
         curr_y = y_cord
         room_grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
         starting_room = Room("tbrl_empty", curr_x, curr_y, False, False, False, False, False)
         self.rooms.append(starting_room)
         x_grid = random.randint(0, len(room_grid) - 1)
