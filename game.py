@@ -80,10 +80,11 @@ class Game():
         self.level_one = room.MapMaker(0, 0, 15)
         self.enemies = []
         num_eels = 0
-        for i in range(0, len(self.level_one.rooms) - 1):
-            for j in range(0, len(self.level_one.rooms[i].eels) - 1):
-                self.enemies.append(eel.Eel())
-                self.enemies[num_eels].spawn(self.level_one.rooms[i].eels[j])
+        for i in range(0, len(self.level_one.rooms)):
+            for j in range(0, len(self.level_one.rooms[i].eels)):
+                new_eel = eel.Eel()
+                self.enemies.append(new_eel)
+                self.enemies[num_eels].spawn(self.level_one.rooms[i].eels[j][0], self.level_one.rooms[i].eels[j][1], self.level_one.rooms[i].eels[j][2])
                 num_eels += 1
 
         self.player_room = [0, 0]
@@ -220,7 +221,7 @@ class Game():
             see_dist = 300
         for i in range(0, len(self.enemies) - 1):
             if (abs(player_center[0] - self.enemies[i].center[0]) <= see_dist
-                    and abs(player_center[1] - self.enemies.center[1]) <= see_dist):
+                    and abs(player_center[1] - self.enemies[i].center[1]) <= see_dist):
                 player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
@@ -285,7 +286,7 @@ class Game():
 
         # render enemies
         for i in range(0, len(self.enemies) - 1):
-            pygame.draw.rect(self.screen, self.RED, (self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h), False)
+            pygame.draw.rect(self.screen, self.BLUE, (self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h), False)
 
         if not self.nolight:
             self.screen.blit(mask, (0, 0))

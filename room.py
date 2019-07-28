@@ -44,7 +44,7 @@ class Room:
                 num_one = random.randint(-1, 1)
                 num_two = random.randint(-1, 1)
                 if self.tiles[eel_x_min][eel_y_min] == 0:
-                    self.eels.append([[eel_x_min, eel_x_max], [eel_y_min, eel_y_max], [num_one, num_two]])
+                    self.eels.append([[eel_x_min + self.x_cord, eel_x_max + self.x_cord], [eel_y_min + self.y_cord, eel_y_max + self.y_cord], [num_one, num_two]])
                     placed = True
 
         if self.top:
