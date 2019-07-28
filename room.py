@@ -2,7 +2,7 @@ import random
 
 
 class Room:
-    def __init__(self, file_name, x_cord, y_cord, top, bottom, right, left):
+    def __init__(self, file_name, x_cord, y_cord, top, bottom, right, left, include_eel):
         self.x_cord = x_cord
         self.y_cord = y_cord
         self.minnows = []
@@ -12,6 +12,7 @@ class Room:
         self.bottom = bottom
         self.right = right
         self.left = left
+        self.include_eel = include_eel
 
         data = []
         map_file = open("Rooms/" + file_name + ".txt", "r")
@@ -33,19 +34,24 @@ class Room:
                     self.minnows.append([minno_x, minno_y])
                     placed = True
 
-        num_eels = 1
-        for i in range(0, num_eels):
-            placed = False
-            while not placed:
-                eel_x_min = random.randint(0, len(self.tiles) - 1)
-                eel_x_max = random.randint(eel_x_min, len(self.tiles) - 1)
-                eel_y_min = random.randint(0, len(self.tiles[0]) - 1)
-                eel_y_max = random.randint(eel_y_min, len(self.tiles[0]) - 1)
-                num_one = random.randint(-1, 1)
-                num_two = random.randint(-1, 1)
-                if self.tiles[eel_x_min][eel_y_min] == 0:
-                    self.eels.append([[eel_x_min + self.x_cord, eel_x_max + self.x_cord], [eel_y_min + self.y_cord, eel_y_max + self.y_cord], [num_one, num_two]])
-                    placed = True
+        if self.include_eel:
+            x = int(len(self.tiles) / 2)
+            center = self.x_cord + (x * 20)
+            self.eels.append([[center, center], [self.y_cord + 320, self.y_cord + 400], [0, 1]])
+
+        # num_eels = 1
+        # for i in range(0, num_eels):
+        #     placed = False
+        #     while not placed:
+        #         eel_x_min =
+        #         eel_x_max = random.randint(eel_x_min, len(self.tiles) - 1)
+        #         eel_y_min = random.randint(0, len(self.tiles[0]) - 1)
+        #         eel_y_max = random.randint(eel_y_min, len(self.tiles[0]) - 1)
+        #         num_one = random.randint(-1, 1)
+        #         num_two = random.randint(-1, 1)
+        #         if self.tiles[eel_x_min][eel_y_min] == 0:
+        #             self.eels.append([[eel_x_min + self.x_cord, eel_x_max + self.x_cord], [eel_y_min + self.y_cord, eel_y_max + self.y_cord], [num_one, num_two]])
+        #             placed = True
 
         if self.top:
             self.top_used()
@@ -101,7 +107,7 @@ class MapMaker:
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-        starting_room = Room("tbrl_empty", curr_x, curr_y, False, False, False, False)
+        starting_room = Room("tbrl_empty", curr_x, curr_y, False, False, False, False, False)
         self.rooms.append(starting_room)
         x_grid = random.randint(0, len(room_grid) - 1)
         y_grid = random.randint(0, len(room_grid) - 1)
@@ -127,7 +133,7 @@ class MapMaker:
                         curr_y -= 720
                         self.rooms[x].top_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
-                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, True, False, False)
+                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, True, False, False, True)
                         self.rooms.append(new_room)
                         dir_set = True
                 elif direction == 1 and possible_direction[1]:
@@ -135,7 +141,7 @@ class MapMaker:
                         curr_x += 1280
                         self.rooms[x].right_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
-                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, False, True)
+                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, False, True, True)
                         self.rooms.append(new_room)
                         dir_set = True
                 elif direction == 2 and possible_direction[2]:
@@ -143,7 +149,7 @@ class MapMaker:
                         curr_y += 720
                         self.rooms[x].bottom_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
-                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, True, False, False, False)
+                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, True, False, False, False, True)
                         self.rooms.append(new_room)
                         dir_set = True
                 elif x_grid > 0 and possible_direction[3]:
@@ -151,7 +157,7 @@ class MapMaker:
                         curr_x -= 1280
                         self.rooms[x].left_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
-                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False)
+                        new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False, True)
                         self.rooms.append(new_room)
                         dir_set = True
         for x in range(0, len(self.rooms) - 1):
