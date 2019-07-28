@@ -179,7 +179,7 @@ class Game():
 
         if self.ihandler.get_state("FISH LIGHT"):
             self.player.using_light = True
-            self.sound_light.play()
+            # self.sound_light.play()
         else:
             self.player.using_light = False
 
@@ -258,7 +258,7 @@ class Game():
             if self.level_one.rooms[i].y_cord != self.player_room[1]:
                 continue
             for j in range(0, len(self.level_one.rooms[i].minnows)):
-                minnow_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[i][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[i][1] * 20) - self.player.cy, 20, 20)
+                minnow_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[j][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[j][1] * 20) - self.player.cy, 20, 20)
                 if player_rect.colliderect(minnow_rect):
                     self.player.energy = self.player.MAX_ENERGY
                     del self.level_one.rooms[i].minnows[j]
@@ -285,6 +285,13 @@ class Game():
                 player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
+
+    def rotate_center(self, image, angle):
+
+        loc = image.get_rect().center
+        rot_sprite = pygame.transform.rotate(image, angle)
+        rot_sprite.get_rect().center = loc
+        return rot_sprite
 
     def render(self):
 
@@ -342,7 +349,7 @@ class Game():
                         pygame.draw.rect(self.screen, self.WHITE, (x_val, y_val, 20, 20), False)
 
         # render player
-        self.screen.blit(self.image_fish[0], (self.player.x, self.player.y))
+        self.screen.blit(self.rotate_center(self.image_fish[0], self.player.angle), (self.player.x, self.player.y))
         # pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # render enemies
