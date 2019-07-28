@@ -6,6 +6,7 @@ class Room:
         self.x_cord = x_cord
         self.y_cord = y_cord
         self.minnows = []
+        self.eels = []
         self.tiles = []
         self.top = top
         self.bottom = bottom
@@ -13,7 +14,6 @@ class Room:
         self.left = left
 
         data = []
-
         map_file = open("Rooms/" + file_name + ".txt", "r")
         for line in map_file.read().splitlines():
             data.append(list(map(int, line.split(" "))))
@@ -23,11 +23,6 @@ class Room:
             for y in range(0, len(data)):
                 self.tiles[x].append(data[y][x])
 
-        # for x in range(0, len(self.tiles)):
-        #     for y in range(0, len(self.tiles[0])):
-        #         if self.tiles[x][y] == 2:
-        #             self.minnows.append([x, y])
-
         num_minnos = 1
         for i in range(0, num_minnos):
             placed = False
@@ -35,8 +30,21 @@ class Room:
                 minno_x = random.randint(0, len(self.tiles) - 1)
                 minno_y = random.randint(0, len(self.tiles[0]) - 1)
                 if self.tiles[minno_x][minno_y] == 0:
-                    self.tiles[minno_x][minno_y] = 2
                     self.minnows.append([minno_x, minno_y])
+                    placed = True
+
+        num_eels = 1
+        for i in range(0, num_eels):
+            placed = False
+            while not placed:
+                eel_x_min = random.randint(0, len(self.tiles) - 1)
+                eel_x_max = random.randint(eel_x_min, len(self.tiles) - 1)
+                eel_y_min = random.randint(0, len(self.tiles[0]) - 1)
+                eel_y_max = random.randint(eel_y_min, len(self.tiles[0]) - 1)
+                num_one = random.randint(-1, 1)
+                num_two = random.randint(-1, 1)
+                if self.tiles[eel_x_min][eel_y_min] == 0:
+                    self.eels.append([[eel_x_min, eel_x_max], [eel_y_min, eel_y_max], [num_one, num_two]])
                     placed = True
 
         if self.top:
