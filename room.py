@@ -22,10 +22,20 @@ class Room:
             for y in range(0, len(data)):
                 self.tiles[x].append(data[y][x])
 
-        for x in range(0, len(self.tiles)):
-            for y in range(0, len(self.tiles[0])):
-                if self.tiles[x][y] == 2:
-                    self.minnows.append([x, y])
+        # for x in range(0, len(self.tiles)):
+        #     for y in range(0, len(self.tiles[0])):
+        #         if self.tiles[x][y] == 2:
+        #             self.minnows.append([x, y])
+
+        num_minnos = 1
+        for i in range(0, num_minnos):
+            placed = False
+            while not placed:
+                minno_x = random.randint(0, len(self.tiles))
+                minno_y = random.randint(0, len(self.tiles[0]))
+                if self.tiles[x][y] == 0:
+                    self.tiles[x][y] = 2
+                    placed = True
 
         if self.top:
             self.top_used()
