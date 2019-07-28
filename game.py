@@ -58,6 +58,8 @@ class Game():
         self.image_title = pygame.image.load("res/gfx/title.png")
         self.image_pearl = pygame.image.load("res/gfx/pearl.png")
 
+        self.time_left = 0
+
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
         self.sound_dash = pygame.mixer.Sound("res/sfx/dash.wav")
