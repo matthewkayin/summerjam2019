@@ -1,5 +1,6 @@
 import random
 
+
 class Room:
     def __init__(self, file_name, x_cord, y_cord, top, bottom, right, left):
         self.x_cord = x_cord
@@ -79,12 +80,12 @@ class MapMaker:
         self.rooms.append(starting_room)
         for x in range(0, self.max_rooms):
             dir_set = False
-            while(dir_set == False):
+            while not dir_set:
                 direction = random.randint(0, 3)
                 if direction == 0:
                     if not self.rooms[x].top:
                         curr_y -= 720
-                        self.rooms[x].top_used
+                        self.rooms[x].top_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, True, False, False)
                         self.rooms.append(new_room)
@@ -92,7 +93,7 @@ class MapMaker:
                 elif direction == 1:
                     if not self.rooms[x].right:
                         curr_x += 1280
-                        self.rooms[x].right_used
+                        self.rooms[x].right_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, False, True)
                         self.rooms.append(new_room)
@@ -100,7 +101,7 @@ class MapMaker:
                 elif direction == 2:
                     if not self.rooms[x].bottom:
                         curr_y += 720
-                        self.rooms[x].bottom_used
+                        self.rooms[x].bottom_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, True, False, False, False)
                         self.rooms.append(new_room)
@@ -108,7 +109,7 @@ class MapMaker:
                 else:
                     if not self.rooms[x].left:
                         curr_x -= 1280
-                        self.rooms[x].left_used
+                        self.rooms[x].left_used()
                         map = random.randint(0, len(self.possible_rooms) - 1)
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False)
                         self.rooms.append(new_room)

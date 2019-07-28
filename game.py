@@ -145,6 +145,16 @@ class Game():
                     self.ihandler.key_down(axis_v_neg)
 
     def update(self, delta):
+
+        if self.gamestate == 0:
+            event = ""
+            while event != "EMPTY":
+                event = self.ihandler.key_queue()
+                if event == "FISH DASH":
+                    self.gamestate = 1
+                    break
+            return
+
         # handle inputs from ihandler
         event = ""
         while event != "EMPTY":
@@ -207,6 +217,19 @@ class Game():
         self.enemy.update(delta, player_sound, chase)
 
     def render(self):
+
+        if self.gamestate == 0:
+
+            self.screen.fill(self.BLACK)
+            header = self.bigfont.render("Sea Nothing", False, self.WHITE)
+            instructions = self.bigfont.render("Press A to start", False, self.WHITE)
+            self.screen.blit(header, (self.SCREEN_WIDTH / 8, self.SCREEN_HEIGHT / 2 - 50))
+            self.screen.blit(instructions, (self.SCREEN_WIDTH / 8, self.SCREEN_HEIGHT / 2 - 20))
+
+            pygame.display.flip()
+
+            return
+
         if not self.nolight:
             mask = pygame.surface.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT)).convert_alpha()
             mask.fill((0, 0, 0, 255))
@@ -280,7 +303,9 @@ class Game():
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE or event.key == pygame.K_F1 or event.key == pygame.K_F2 or event.key == pygame.K_F3:
+                if event.key == pygame.K_ESCAPE:
+                    sys.exit()
+                if event.key == pygame.K_F1 or event.key == pygame.K_F2 or event.key == pygame.K_F3:
                     print("You can't map those keys!")
                     continue
                 self.ihandler.key_down("K" + str(event.key))
