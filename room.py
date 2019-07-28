@@ -7,6 +7,7 @@ class Room:
         self.y_cord = y_cord
         self.minnows = []
         self.eels = []
+        self.finish = []
         self.tiles = []
         self.top = top
         self.bottom = bottom
@@ -38,20 +39,6 @@ class Room:
             x = int(len(self.tiles) / 2)
             center = self.x_cord + (x * 20)
             self.eels.append([[center, center], [self.y_cord + 320, self.y_cord + 400], [0, 1]])
-
-        # num_eels = 1
-        # for i in range(0, num_eels):
-        #     placed = False
-        #     while not placed:
-        #         eel_x_min =
-        #         eel_x_max = random.randint(eel_x_min, len(self.tiles) - 1)
-        #         eel_y_min = random.randint(0, len(self.tiles[0]) - 1)
-        #         eel_y_max = random.randint(eel_y_min, len(self.tiles[0]) - 1)
-        #         num_one = random.randint(-1, 1)
-        #         num_two = random.randint(-1, 1)
-        #         if self.tiles[eel_x_min][eel_y_min] == 0:
-        #             self.eels.append([[eel_x_min + self.x_cord, eel_x_max + self.x_cord], [eel_y_min + self.y_cord, eel_y_max + self.y_cord], [num_one, num_two]])
-        #             placed = True
 
         if self.top:
             self.top_used()
@@ -91,6 +78,15 @@ class Room:
             for y in range(0, len(self.tiles[0])):
                 if self.tiles[x][y] == 6:
                     self.tiles[x][y] = 0
+
+    def generate_end(self):
+        placed = False
+        while not placed:
+            x = random.randint(0, len(self.tiles) - 1)
+            y = random.randint(0, len(self.tiles[0]) - 1)
+            if self.tiles[x][y] == 0:
+                self.finish.append([x, y])
+                placed = True
 
 
 class MapMaker:
@@ -162,3 +158,5 @@ class MapMaker:
                         dir_set = True
         for x in range(0, len(self.rooms) - 1):
             self.rooms[x].close_entrances()
+        end_room = random.randint(0, len(self.rooms) - 1)
+        self.rooms[end_room].generate_end()
