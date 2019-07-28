@@ -6,7 +6,7 @@
 class Fish():
     def __init__(self):
         self.x = 1280 / 2
-        self.y = 600
+        self.y = 720 / 2
         self.w = 40
         self.h = 40
         self.dx = 0

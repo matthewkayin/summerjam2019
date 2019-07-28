@@ -81,6 +81,7 @@ class Game():
         self.enemy = eel.Eel()
         self.enemy.spawn([10, 10], [200, 210], [1, 0])
         self.player_room = [0, 0]
+        self.player_safe = [self.player.x, self.player.y]
 
     def input(self):
         for event in pygame.event.get():
@@ -176,6 +177,47 @@ class Game():
             self.player.speeding = False
 
         self.player.update(delta)
+
+        # check for collisions
+        wall_collision = False
+        tile_rect = None
+        player_rect = pygame.Rect(self.player.x, self.player.y, self.player.w, self.player.h)
+        for i in range(0, len(self.level_one.rooms)):
+            if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                continue
+            if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                continue
+            for x in range(0, len(self.level_one.rooms[i].tiles)):
+                for y in range(0, len(self.level_one.rooms[i].tiles[0])):
+                    x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
+                    y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
+                    if x_val + 20 < 0 or x_val >= self.SCREEN_WIDTH or y_val + 20 < 0 or y_val >= self.SCREEN_HEIGHT:
+                        continue
+                    if self.level_one.rooms[i].tiles[x][y] == 1:
+                        tile_rect = pygame.Rect(x_val, y_val, 20, 20)
+                        if player_rect.colliderect(tile_rect):
+                            wall_collision = True
+                            break
+                if wall_collision:
+                    break
+            if wall_collision:
+                break
+
+        if wall_collision:
+            # self.player.x = self.player_safe[0]
+            # self.player.y = self.player_safe[1]
+            while player_rect.colliderect(tile_rect):
+                self.player.x -= self.player.dx
+                self.player.y -= self.player.dy
+                player_rect = pygame.Rect(self.player.x, self.player.y, self.player.w, self.player.h)
+            self.player.dx = 0
+            self.player.dy = 0
+            self.player.ax = 0
+            self.player.ay = 0
+        else:
+            self.player_safe[0] = self.player.x
+            self.player_safe[1] = self.player.y
+
         room_x = (self.player.x + self.player.cx) / self.SCREEN_WIDTH
         if room_x > 0:
             room_x = math.floor(room_x)
