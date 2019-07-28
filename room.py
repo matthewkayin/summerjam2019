@@ -25,7 +25,7 @@ class Room:
             for y in range(0, len(data)):
                 self.tiles[x].append(data[y][x])
 
-        num_minnos = 1
+        num_minnos = 3
         for i in range(0, num_minnos):
             placed = False
             while not placed:
