@@ -50,7 +50,7 @@ class Game():
 
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
-        self.sound_dash = pygame.mixer.Sound("res/sfx/beep.wav")
+        self.sound_dash = pygame.mixer.Sound("res/sfx/eel-close-two.wav")
         # self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
         pygame.font.init()
@@ -97,6 +97,28 @@ class Game():
 
         self.player_room = [0, 0]
         self.player_safe = [self.player.x, self.player.y]
+
+        self.floor_tiles = []
+        far_left = 0
+        far_right = 0
+        far_top = 0
+        far_bot = 0
+        for curr_room in self.level_one.rooms:
+            if curr_room.x_cord < far_left:
+                far_left = curr_room.x_cord
+            elif curr_room.x_cord + self.SCREEN_WIDTH > far_right:
+                far_right = curr_room.x_cord + self.SCREEN_WIDTH
+            if curr_room.y_cord < far_top:
+                far_top = curr_room.y_cord
+            elif curr_room.y_cord + self.SCREEN_HEIGHT > far_bot:
+                far_bot = curr_room.y_cord + self.SCREEN_HEIGHT
+        no_x_tiles = int(abs(far_left - far_right) / 640) + 2
+        no_y_tiles = int(math.ceil(abs(far_top - far_bot) / 640)) + 2
+        far_left -= 640
+        far_top -= 640
+        for x in range(0, no_x_tiles):
+            for y in range(0, no_y_tiles):
+                self.floor_tiles.append([far_left + (640 * x), far_top + (640 * y)])
 
     def input(self):
         for event in pygame.event.get():
@@ -337,11 +359,14 @@ class Game():
 
         # self.screen.fill(self.GREEN)
         # render floor
-        for x in range(0, 2):
-            for y in range(0, 2):
-                x_cord = (x * 640) - self.player.cx
-                y_cord = (y * 640) - self.player.cy
-                self.screen.blit(self.image_floor, (x_cord, y_cord))
+        for floor_tile in self.floor_tiles:
+            x_cord = floor_tile[0] - self.player.cx
+            y_cord = floor_tile[1] - self.player.cy
+            if x_cord + self.SCREEN_WIDTH < 0 or x_cord >= self.SCREEN_WIDTH:
+                continue
+            if y_cord + self.SCREEN_HEIGHT < 0 or y_cord >= self.SCREEN_HEIGHT:
+                continue
+            self.screen.blit(self.image_floor, (x_cord, y_cord))
 
         # render room
         for i in range(0, len(self.level_one.rooms)):
