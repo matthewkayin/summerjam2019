@@ -302,61 +302,9 @@ class Game():
                     self.sound_capture.play()
                     break
 
-        player_sound = False
-        chase = False
-        player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-        room_indices = []
-        for i in range(0, len(self.level_one.rooms)):
-            if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
-                continue
-            if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
-                continue
-            room_indices.append(i)
-
         for i in range(0, len(self.enemies) - 1):
-            if not self.enemies[i].room in room_indices:
-                continue
-            player_sound = False
-            chase = False
-            self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
-            if self.player.speeding:
-                if (abs(player_center[0] - self.enemies[i].center[0]) <= self.enemies[i].LISTEN_DIST
-                        and abs(player_center[1] - self.enemies[i].center[1]) <= self.enemies[i].LISTEN_DIST):
-                    player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
-            see_dist = self.enemies[i].SEE_DIST
-            if self.player.using_light:
-                see_dist = 300
-            if (abs(player_center[0] - self.enemies[i].center[0]) <= see_dist
-                    and abs(player_center[1] - self.enemies[i].center[1]) <= see_dist):
-                player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
-                chase = True
-            self.enemies[i].update(delta, player_sound, chase)
+            self.enemies[i].update(delta, False, False)
             enemy_rect = pygame.Rect(self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h)
-
-            for i in range(0, len(self.level_one.rooms)):
-                if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
-                    continue
-                if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
-                    continue
-                for x in range(0, len(self.level_one.rooms[i].tiles)):
-                    for y in range(0, len(self.level_one.rooms[i].tiles[0])):
-                        x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
-                        y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
-                        if self.level_one.rooms[i].tiles[x][y] == 1:
-                            tile_rect = pygame.Rect(x_val, y_val, 20, 20)
-                            if enemy_rect.colliderect(tile_rect):
-                                wall_collision = True
-                                break
-                    if wall_collision:
-                        break
-                if wall_collision:
-                    break
-            if wall_collision:
-                while enemy_rect.colliderect(tile_rect):
-                    self.enemies[i].x -= self.enemies[i].dx
-                    self.enemies[i].y -= self.enemies[i].dy
-                    enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
-
             if player_rect.colliderect(enemy_rect):
                 pygame.draw.rect(self.screen, self.YELLOW, enemy_rect, False)
                 self.sound_eel_attack.play()

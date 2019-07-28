@@ -13,8 +13,8 @@ class Eel():
         self.center = 0
         self.room = 0
 
-        self.SPEED = 0.5
-        self.EXTRA_SPEED = 3.8
+        self.SPEED = 4
+        self.EXTRA_SPEED = 2.8
         self.PACE_LENGTH = 500
         self.PROX_THRESHOLD = 1
 
