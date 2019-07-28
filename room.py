@@ -1,5 +1,6 @@
 import random
 
+
 class Room:
     def __init__(self, file_name, x_cord, y_cord, top, bottom, right, left):
         self.x_cord = x_cord
@@ -91,7 +92,7 @@ class MapMaker:
         self.rooms.append(starting_room)
         for x in range(0, self.max_rooms):
             dir_set = False
-            while(dir_set == False):
+            while not dir_set:
                 direction = random.randint(0, 3)
                 if direction == 0:
                     if not self.rooms[x].top:
