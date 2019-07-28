@@ -261,7 +261,7 @@ class Game():
             if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
                 continue
             for minnow in self.level_one.rooms[i].minnows:
-                pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
+                pygame.draw.rect(self.screen, self.RED, (self.level_one.rooms[i].x_cord + (minnow[0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
             for x in range(0, len(self.level_one.rooms[i].tiles)):
                 for y in range(0, len(self.level_one.rooms[i].tiles[0])):
                     x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
