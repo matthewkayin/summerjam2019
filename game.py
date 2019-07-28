@@ -49,10 +49,14 @@ class Game():
         self.image_minnow = []
         for i in range(0, 18):
             self.image_minnow.append(pygame.image.load("res/gfx/minnow_" + str(i) + ".png"))
+        self.image_eel = []
+        for i in range(0, 14):
+            self.image_eel.append(pygame.image.load("res/gfx/eel_" + str(i) + ".png"))
         self.image_wall = pygame.image.load("res/gfx/wall.png")
         self.image_floor = pygame.image.load("res/gfx/floor.png")
         # self.image_finish = pygame.image.load("res/gfx/") # *finish path
         self.image_title = pygame.image.load("res/gfx/title.png")
+        self.image_pearl = pygame.image.load("res/gfx/pearl.png")
 
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
@@ -66,7 +70,9 @@ class Game():
         pygame.font.init()
         self.smallfont = pygame.font.SysFont("Serif", 14)
         self.bigfont = pygame.font.SysFont("Serif", 22)
+        self.medfont = pygame.font.SysFont("Serif", 18)
         self.fps_text = self.smallfont.render("FPS", False, self.GREEN)
+        self.time_left_text = self.medfont.render("Reach the pearl before time runs out! Time left: ", False, self.YELLOW)
 
         pygame.joystick.init()
         self.AXIS_THRESHOLD = 0.001
@@ -139,6 +145,9 @@ class Game():
 
         self.eel_sfreq = 120
         self.eel_SMAX = 60 * 7
+
+        self.time_left = self.room_count * 45
+        self.time_left_text = self.medfont.render("Reach the pearl before time runs out! Time left: " + str(self.time_left), False, self.YELLOW)
 
     def input(self):
         for event in pygame.event.get():
@@ -225,14 +234,14 @@ class Game():
         self.player.set_direction(player_inputs)
 
         if self.ihandler.get_state("FISH LIGHT"):
-            if not self.player.using_light and self.player.energy >= self.player.DASH_COST:
+            if not self.player.using_light:
                 self.sound_light.play()
                 self.player.using_light = True
         else:
             self.player.using_light = False
 
         if self.ihandler.get_state("FISH DASH"):
-            if not self.player.speeding:
+            if not self.player.speeding and self.player.energy >= self.player.DASH_COST:
                 self.sound_dash.play()
                 self.player.dash(player_inputs)
         else:
@@ -408,7 +417,7 @@ class Game():
             if len(self.level_one.rooms[i].finish) == 1:
                 x_val = self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].finish[0] * 20) - self.player.cx
                 y_val = self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].finish[1] * 20) - self.player.cy
-                self.screen.blit(self.image_finish, (x_val, y_val))
+                self.screen.blit(self.image_pearl, (x_val, y_val))
 
         # render player
         self.screen.blit(self.rotate_center(self.image_fish[self.player.animation_counter], self.player.angle), (self.player.x, self.player.y))
@@ -416,7 +425,7 @@ class Game():
 
         # render enemies
         for i in range(0, len(self.enemies) - 1):
-            pygame.draw.rect(self.screen, self.BLUE, (self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h), False)
+            self.screen.blit(self.rotate_center(self.image_eel[self.enemies[i].animation_frame], self.enemies[i].angle), (self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy))
 
         if not self.nolight:
             self.screen.blit(mask, (0, 0))
@@ -425,6 +434,7 @@ class Game():
         pygame.draw.rect(self.screen, self.YELLOW, (5, 5, self.player.energy, 20), False)
         pygame.draw.rect(self.screen, self.YELLOW, (5 + self.player.energy, 5, 100 - self.player.energy, 20), True)
         pygame.draw.rect(self.screen, self.BLUE, (115, 5, 20, 20), not self.player.can_dash())
+        self.screen.blit(self.time_left_text, (5, 25))
 
         if self.show_fps:
             self.screen.blit(self.fps_text, (0, 0))
@@ -516,6 +526,10 @@ class Game():
                 self.fps_text = self.smallfont.render('FPS: ' + str(frames), False, self.GREEN)
                 frames = 0
                 before_sec += SECOND
+                self.time_left -= 1
+                self.time_left_text = self.medfont.render("Reach the pearl before time runs out! Time left: " + str(self.time_left), False, self.YELLOW)
+                if self.time_left == 0:
+                    self.gamestate = 0
             before_time = pygame.time.get_ticks()
 
     def quit(self):

@@ -1,4 +1,5 @@
 import random
+import math
 
 
 class Eel():
@@ -25,6 +26,12 @@ class Eel():
 
         self.LISTEN_DIST = 450
         self.SEE_DIST = 150
+
+        self.animation_tick = 0
+        self.ANIMATION_MAX = 2
+        self.animation_frame = 0
+        self.FRAME_MAX = 14
+        self.angle = 0
 
     def spawn(self, x_vals, y_vals, pace_offset):
         self.x = random.randint(x_vals[0], x_vals[1])
@@ -69,3 +76,17 @@ class Eel():
             self.y += self.dy
         else:
             self.dy = 0
+
+        self.angle = math.degrees(math.atan2(self.dx, self.dy))
+        if self.angle < 0:
+            self.angle *= -1
+        elif self.angle > 0:
+            self.angle = 360 - self.angle
+        self.angle -= 180
+
+        self.animation_tick += delta
+        if self.animation_tick >= self.ANIMATION_MAX:
+            self.animation_frame += 1
+            self.animation_tick -= self.ANIMATION_MAX
+            if self.animation_frame >= self.FRAME_MAX:
+                self.animation_frame = 0

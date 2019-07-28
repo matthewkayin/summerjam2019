@@ -35,7 +35,7 @@ class Fish():
 
         self.energy = 100
         self.MAX_ENERGY = 100
-        self.ENERGY_TICK = 1 / 30
+        self.ENERGY_TICK = 1 / 60
         self.DASH_COST = 30
         self.RUN_COST = 1 / 2
         self.LIGHT_COST = 1 / 4
