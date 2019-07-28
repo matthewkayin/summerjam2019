@@ -8,7 +8,7 @@ class Eel():
         self.w = 30
         self.h = 90
         self.pace_points = [[0, 0], [100, 100]]
-        self.center
+        self.center = 0
 
         self.SPEED = 0.5
         self.EXTRA_SPEED = 3.8
