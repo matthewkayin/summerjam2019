@@ -2,13 +2,15 @@
 # Team Moral Support (Code: Matt Madden and Zubair Khan; Art: Trent Madden; Music and Sound: Kenon Brinkley)
 # fish.py - The player class
 
+import math
+
 
 class Fish():
     def __init__(self):
         self.x = 1280 / 2
-        self.y = 600
-        self.w = 40
-        self.h = 40
+        self.y = 720 / 2
+        self.w = 20
+        self.h = 36
         self.dx = 0
         self.dy = 0
         self.ax = 0
@@ -37,6 +39,14 @@ class Fish():
         self.DASH_COST = 30
         self.RUN_COST = 1 / 2
         self.LIGHT_COST = 1 / 4
+
+        self.angle = 90
+        self.animation_counter = 2
+        self.animation_tick = 0
+        self.ANIMATION_MAX = 10
+        self.ACOUNTER_MAX = 5
+
+        self.input_got = False
 
     def update(self, delta):
         max_dx = self.dx
@@ -107,9 +117,37 @@ class Fish():
             else:
                 self.energy -= self.LIGHT_COST
 
+        if self.input_got:
+            self.animation_tick += delta
+            if self.animation_tick >= self.ANIMATION_MAX:
+                self.animation_tick -= self.ANIMATION_MAX
+                self.animation_counter += 1
+                if self.animation_counter > self.ACOUNTER_MAX:
+                    self.animation_counter = 0
+        else:
+            self.animation_counter = 2
+            self.animation_tick = 0
+
     def set_direction(self, inputs):
         self.ax = inputs[0] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
         self.ay = inputs[1] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
+        if inputs[0] == 0 and inputs[1] == 0:
+            self.input_got = False
+            return
+        else:
+            self.input_got = True
+        # if inputs[0] == 0:
+        #    if inputs[1] > 0:
+        #        self.angle = 270
+        #    elif inputs[1] < 0:
+        #        self.angle = 90
+        # else:
+        self.angle = math.degrees(math.atan2(inputs[1], inputs[0]))
+        if self.angle < 0:
+            self.angle *= -1
+        elif self.angle > 0:
+            self.angle = 360 - self.angle
+        self.angle -= 90
 
     def dash(self, inputs):
         DASH_COST = 30

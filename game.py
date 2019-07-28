@@ -42,11 +42,19 @@ class Game():
         self.clock = pygame.time.Clock()
 
         # make image objects
-        # self.image_ball = pygame.image.load("res/ball.png")
+        self.image_fish = []
+        for i in range(0, 6):
+            self.image_fish.append(pygame.image.load("res/gfx/fish_" + str(i) + ".png"))
+        self.image_minnow = []
+        for i in range(0, 18):
+            self.image_minnow.append(pygame.image.load("res/gfx/minnow_" + str(i) + ".png"))
+        self.image_wall = pygame.image.load("res/gfx/wall.png")
+        self.image_floor = pygame.image.load("res/gfx/floor.png")
 
         # make sound objects
-        # pygame.mixer.music.load("res/storms.wav")
-        # self.beep = pygame.mixer.Sound("res/beep.wav")
+        pygame.mixer.music.load("res/sfx/music.wav")
+        self.sound_dash = pygame.mixer.Sound("res/sfx/eel-close-two.wav")
+        # self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
         pygame.font.init()
         self.smallfont = pygame.font.SysFont("Serif", 14)
@@ -64,18 +72,21 @@ class Game():
             self.joystick_labels.append(self.joystick_label_pool[i])
         self.ihandler = ihandler.IHandler(["AXIS FISH HORIZ", "AXIS FISH VERT", "FISH DASH", "FISH LIGHT"])
 
-        self.game_init()
+        pygame.mixer.music.play(-1)  # the -1 makes it play forever
+        if self.debug:
+            self.game_init()
 
         self.running = True
         self.show_fps = self.debug
 
         self.gamestate = 0
+        if self.debug:
+            self.gamestate = 1
 
         self.run()
         self.quit()
 
     def game_init(self):
-        # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
         self.level_one = room.MapMaker(0, 0, 15)
         self.enemies = []
@@ -85,9 +96,38 @@ class Game():
                 new_eel = eel.Eel()
                 self.enemies.append(new_eel)
                 self.enemies[num_eels].spawn(self.level_one.rooms[i].eels[j][0], self.level_one.rooms[i].eels[j][1], self.level_one.rooms[i].eels[j][2])
+                self.enemies[num_eels].room = i
                 num_eels += 1
 
         self.player_room = [0, 0]
+        self.player_safe = [self.player.x, self.player.y]
+
+        self.floor_tiles = []
+        far_left = 0
+        far_right = 0
+        far_top = 0
+        far_bot = 0
+        for curr_room in self.level_one.rooms:
+            if curr_room.x_cord < far_left:
+                far_left = curr_room.x_cord
+            elif curr_room.x_cord + self.SCREEN_WIDTH > far_right:
+                far_right = curr_room.x_cord + self.SCREEN_WIDTH
+            if curr_room.y_cord < far_top:
+                far_top = curr_room.y_cord
+            elif curr_room.y_cord + self.SCREEN_HEIGHT > far_bot:
+                far_bot = curr_room.y_cord + self.SCREEN_HEIGHT
+        no_x_tiles = int(abs(far_left - far_right) / 640) + 2
+        no_y_tiles = int(math.ceil(abs(far_top - far_bot) / 640)) + 2
+        far_left -= 640
+        far_top -= 640
+        for x in range(0, no_x_tiles):
+            for y in range(0, no_y_tiles):
+                self.floor_tiles.append([far_left + (640 * x), far_top + (640 * y)])
+
+        self.minnow_tick = 0
+        self.minnow_MAX = 10
+        self.minnow_frame = 0
+        self.minnow_MFRAME = 17
 
     def input(self):
         for event in pygame.event.get():
@@ -158,6 +198,7 @@ class Game():
             while event != "EMPTY":
                 event = self.ihandler.key_queue()
                 if event == "FISH DASH":
+                    self.game_init()
                     self.gamestate = 1
                     break
             return
@@ -174,15 +215,57 @@ class Game():
 
         if self.ihandler.get_state("FISH LIGHT"):
             self.player.using_light = True
+            # self.sound_light.play()
         else:
             self.player.using_light = False
 
         if self.ihandler.get_state("FISH DASH"):
-            self.player.dash(player_inputs)
+            if not self.player.speeding:
+                self.sound_dash.play()
+                self.player.dash(player_inputs)
         else:
             self.player.speeding = False
 
         self.player.update(delta)
+
+        # check for collisions
+        wall_collision = False
+        tile_rect = None
+        player_rect = pygame.Rect(self.player.x, self.player.y, self.player.w, self.player.h)
+        for i in range(0, len(self.level_one.rooms)):
+            if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                continue
+            if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                continue
+            for x in range(0, len(self.level_one.rooms[i].tiles)):
+                for y in range(0, len(self.level_one.rooms[i].tiles[0])):
+                    x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
+                    y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
+                    if x_val + 20 < 0 or x_val >= self.SCREEN_WIDTH or y_val + 20 < 0 or y_val >= self.SCREEN_HEIGHT:
+                        continue
+                    if self.level_one.rooms[i].tiles[x][y] == 1:
+                        tile_rect = pygame.Rect(x_val, y_val, 20, 20)
+                        if player_rect.colliderect(tile_rect):
+                            wall_collision = True
+                            break
+                if wall_collision:
+                    break
+            if wall_collision:
+                break
+
+        if wall_collision:
+            while player_rect.colliderect(tile_rect):
+                self.player.x -= self.player.dx
+                self.player.y -= self.player.dy
+                player_rect = pygame.Rect(self.player.x, self.player.y, self.player.w, self.player.h)
+            self.player.dx = 0
+            self.player.dy = 0
+            self.player.ax = 0
+            self.player.ay = 0
+        else:
+            self.player_safe[0] = self.player.x
+            self.player_safe[1] = self.player.y
+
         room_x = (self.player.x + self.player.cx) / self.SCREEN_WIDTH
         if room_x > 0:
             room_x = math.floor(room_x)
@@ -197,34 +280,93 @@ class Game():
         room_y *= self.SCREEN_HEIGHT
         self.player_room = [room_x, room_y]
 
-        # for i in range(0, len(self.room.minnows)):
-        #     minnowRect = pygame.Rect(self.room.x_cord + (self.room.minnows[i][0] * 20) - self.player.cx, self.room.y_cord + (self.room.minnows[i][1] * 20) - self.player.cy, 20, 20)
+        # for i in range(0, len(self.level_one.rooms[i].minnows)):
+        #     minnowRect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[i][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[i][1] * 20) - self.player.cy, 20, 20)
         #     if playerRect.colliderect(minnowRect):
         #         self.player.energy = self.player.MAX_ENERGY
-        #         del self.room.minnows[i]
+        #         del self.level_one.rooms[i].minnows[i]
         #         break
+        for i in range(0, len(self.level_one.rooms)):
+            if self.level_one.rooms[i].x_cord != self.player_room[0]:
+                continue
+            if self.level_one.rooms[i].y_cord != self.player_room[1]:
+                continue
+            for j in range(0, len(self.level_one.rooms[i].minnows)):
+                minnow_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[j][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[j][1] * 20) - self.player.cy, 20, 20)
+                if player_rect.colliderect(minnow_rect):
+                    self.player.energy = self.player.MAX_ENERGY
+                    del self.level_one.rooms[i].minnows[j]
+                    break
 
         player_sound = False
         chase = False
-        if self.player.speeding:
-            player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-            for i in range(0, len(self.enemies) - 1):
-                self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
+        player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
+        room_indices = []
+        for i in range(0, len(self.level_one.rooms)):
+            if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                continue
+            if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                continue
+            room_indices.append(i)
+
+        for i in range(0, len(self.enemies) - 1):
+            if not self.enemies[i].room in room_indices:
+                continue
+            player_sound = False
+            chase = False
+            self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
+            if self.player.speeding:
                 if (abs(player_center[0] - self.enemies[i].center[0]) <= self.enemies[i].LISTEN_DIST
                         and abs(player_center[1] - self.enemies[i].center[1]) <= self.enemies[i].LISTEN_DIST):
                     player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
-        player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-        for i in range(0, len(self.enemies) - 1):
-            self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
             see_dist = self.enemies[i].SEE_DIST
-        if self.player.using_light:
-            see_dist = 300
-        for i in range(0, len(self.enemies) - 1):
+            if self.player.using_light:
+                see_dist = 300
             if (abs(player_center[0] - self.enemies[i].center[0]) <= see_dist
                     and abs(player_center[1] - self.enemies[i].center[1]) <= see_dist):
                 player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
+            enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+            for i in range(0, len(self.level_one.rooms)):
+                if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                    continue
+                if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                    continue
+                for x in range(0, len(self.level_one.rooms[i].tiles)):
+                    for y in range(0, len(self.level_one.rooms[i].tiles[0])):
+                        x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
+                        y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
+                        if self.level_one.rooms[i].tiles[x][y] == 1:
+                            tile_rect = pygame.Rect(x_val, y_val, 20, 20)
+                            if enemy_rect.colliderect(tile_rect):
+                                wall_collision = True
+                                break
+                    if wall_collision:
+                        break
+                if wall_collision:
+                    break
+            # if wall_collision:
+            #    while enemy_rect.colliderect(tile_rect):
+            #         self.enemies[i].x -= self.enemies[i].dx
+            #         self.enemies[i].y -= self.enemies[i].dy
+            #         enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+            if player_rect.colliderect(enemy_rect):
+                self.gamestate = 0
+
+        self.minnow_tick += delta
+        if self.minnow_tick >= self.minnow_MAX:
+            self.minnow_tick -= self.minnow_MAX
+            self.minnow_frame += 1
+            if self.minnow_frame > self.minnow_MFRAME:
+                self.minnow_frame = 0
+
+    def rotate_center(self, image, angle):
+
+        loc = image.get_rect().center
+        rot_sprite = pygame.transform.rotate(image, angle)
+        rot_sprite.get_rect().center = loc
+        return rot_sprite
 
     def render(self):
 
@@ -262,7 +404,16 @@ class Game():
                 t = 110
             pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
 
-        self.screen.fill(self.GREEN)
+        # self.screen.fill(self.GREEN)
+        # render floor
+        for floor_tile in self.floor_tiles:
+            x_cord = floor_tile[0] - self.player.cx
+            y_cord = floor_tile[1] - self.player.cy
+            if x_cord + self.SCREEN_WIDTH < 0 or x_cord >= self.SCREEN_WIDTH:
+                continue
+            if y_cord + self.SCREEN_HEIGHT < 0 or y_cord >= self.SCREEN_HEIGHT:
+                continue
+            self.screen.blit(self.image_floor, (x_cord, y_cord))
 
         # render room
         for i in range(0, len(self.level_one.rooms)):
@@ -271,7 +422,9 @@ class Game():
             if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
                 continue
             for minnow in self.level_one.rooms[i].minnows:
-                pygame.draw.rect(self.screen, self.RED, (self.level_one.rooms[i].x_cord + (minnow[0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
+                x_val = self.level_one.rooms[i].x_cord + (minnow[0] * 20) - self.player.cx
+                y_val = self.level_one.rooms[i].y_cord + (minnow[1] * 20) - self.player.cy
+                self.screen.blit(self.image_minnow[self.minnow_frame], (x_val, y_val))
             for x in range(0, len(self.level_one.rooms[i].tiles)):
                 for y in range(0, len(self.level_one.rooms[i].tiles[0])):
                     x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
@@ -279,10 +432,11 @@ class Game():
                     if x_val + 20 < 0 or x_val >= self.SCREEN_WIDTH or y_val + 20 < 0 or y_val >= self.SCREEN_HEIGHT:
                         continue
                     if self.level_one.rooms[i].tiles[x][y] == 1:
-                        pygame.draw.rect(self.screen, self.WHITE, (x_val, y_val, 20, 20), False)
+                        self.screen.blit(self.image_wall, (x_val, y_val))
 
         # render player
-        pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
+        self.screen.blit(self.rotate_center(self.image_fish[self.player.animation_counter], self.player.angle), (self.player.x, self.player.y))
+        # pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # render enemies
         for i in range(0, len(self.enemies) - 1):
