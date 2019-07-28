@@ -135,7 +135,7 @@ class Game():
         self.minnow_MFRAME = 17
 
         self.eel_sfreq = 120
-        self.eel_SMAX = 120
+        self.eel_SMAX = 60 * 7
 
     def input(self):
         for event in pygame.event.get():
@@ -308,21 +308,25 @@ class Game():
                     self.sound_capture.play()
                     break
 
+        eel_nearby = False
+        listen_scaler = 2
         for i in range(0, len(self.enemies) - 1):
             self.enemies[i].update(delta, False, False)
             enemy_rect = pygame.Rect(self.enemies[i].x - self.player.cx, self.enemies[i].y - self.player.cy, self.enemies[i].w, self.enemies[i].h)
-            if (abs(player_rect[0] - enemy_rect[0]) <= self.enemies[i].LISTEN_DIST and abs(player_rect[1] - enemy_rect[1]) <= self.enemies[i].LISTEN_DIST):
-                self.eel_sfreq += 1
-                if self.eel_sfreq >= self.eel_SMAX:
-                    self.eel_sfreq = 0
-                    self.sound_eel_close[random.randint(0, 1)].play()
-            else:
-                self.eel_sfreq = 120
-
+            if (abs(player_rect[0] - enemy_rect[0]) <= self.enemies[i].LISTEN_DIST * listen_scaler and abs(player_rect[1] - enemy_rect[1]) <= self.enemies[i].LISTEN_DIST * listen_scaler):
+                eel_nearby = True
             if player_rect.colliderect(enemy_rect):
                 pygame.draw.rect(self.screen, self.YELLOW, enemy_rect, False)
                 self.sound_eel_attack.play()
                 self.gamestate = 0
+
+        if eel_nearby:
+            self.eel_sfreq += delta
+            if self.eel_sfreq >= self.eel_SMAX:
+                self.eel_sfreq = 0
+                self.sound_eel_close[random.randint(0, 1)].play()
+        else:
+            self.eel_sfreq = self.eel_SMAX
 
         self.minnow_tick += delta
         if self.minnow_tick >= self.minnow_MAX:

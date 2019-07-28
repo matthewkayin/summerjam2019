@@ -16,7 +16,7 @@ class Eel():
         self.SPEED = 4
         self.EXTRA_SPEED = 2.8
         self.PACE_LENGTH = 500
-        self.PROX_THRESHOLD = 1
+        self.PROX_THRESHOLD = 5
 
         self.follow_location = [0, 0]
         self.following = 1
