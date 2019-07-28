@@ -85,7 +85,8 @@ class Room:
             x = random.randint(0, len(self.tiles) - 1)
             y = random.randint(0, len(self.tiles[0]) - 1)
             if self.tiles[x][y] == 0:
-                self.finish.append([x, y])
+                self.finish.append(x)
+                self.finish.append(y)
                 placed = True
 
 
@@ -158,5 +159,4 @@ class MapMaker:
                         dir_set = True
         for x in range(0, len(self.rooms) - 1):
             self.rooms[x].close_entrances()
-        end_room = random.randint(0, len(self.rooms) - 1)
-        self.rooms[end_room].generate_end()
+        self.rooms[len(self.rooms) - 1].generate_end()
