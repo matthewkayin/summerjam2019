@@ -45,6 +45,9 @@ class Game():
         self.image_fish = []
         for i in range(0, 6):
             self.image_fish.append(pygame.image.load("res/gfx/fish_" + str(i) + ".png"))
+        self.image_minnow = []
+        for i in range(0, 18):
+            self.image_minnow.append(pygame.image.load("res/gfx/minnow_" + str(i) + ".png"))
         self.image_wall = pygame.image.load("res/gfx/wall.png")
         self.image_floor = pygame.image.load("res/gfx/floor.png")
 
@@ -93,6 +96,7 @@ class Game():
                 new_eel = eel.Eel()
                 self.enemies.append(new_eel)
                 self.enemies[num_eels].spawn(self.level_one.rooms[i].eels[j][0], self.level_one.rooms[i].eels[j][1], self.level_one.rooms[i].eels[j][2])
+                self.enemies[num_eels].room = i
                 num_eels += 1
 
         self.player_room = [0, 0]
@@ -119,6 +123,11 @@ class Game():
         for x in range(0, no_x_tiles):
             for y in range(0, no_y_tiles):
                 self.floor_tiles.append([far_left + (640 * x), far_top + (640 * y)])
+
+        self.minnow_tick = 0
+        self.minnow_MAX = 10
+        self.minnow_frame = 0
+        self.minnow_MFRAME = 17
 
     def input(self):
         for event in pygame.event.get():
@@ -245,8 +254,6 @@ class Game():
                 break
 
         if wall_collision:
-            # self.player.x = self.player_safe[0]
-            # self.player.y = self.player_safe[1]
             while player_rect.colliderect(tile_rect):
                 self.player.x -= self.player.dx
                 self.player.y -= self.player.dy
@@ -294,7 +301,17 @@ class Game():
         player_sound = False
         chase = False
         player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
+        room_indices = []
+        for i in range(0, len(self.level_one.rooms)):
+            if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                continue
+            if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                continue
+            room_indices.append(i)
+
         for i in range(0, len(self.enemies) - 1):
+            if not self.enemies[i].room in room_indices:
+                continue
             player_sound = False
             chase = False
             self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
@@ -311,8 +328,38 @@ class Game():
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
             enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+            for i in range(0, len(self.level_one.rooms)):
+                if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
+                    continue
+                if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
+                    continue
+                for x in range(0, len(self.level_one.rooms[i].tiles)):
+                    for y in range(0, len(self.level_one.rooms[i].tiles[0])):
+                        x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
+                        y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
+                        if self.level_one.rooms[i].tiles[x][y] == 1:
+                            tile_rect = pygame.Rect(x_val, y_val, 20, 20)
+                            if enemy_rect.colliderect(tile_rect):
+                                wall_collision = True
+                                break
+                    if wall_collision:
+                        break
+                if wall_collision:
+                    break
+            # if wall_collision:
+            #    while enemy_rect.colliderect(tile_rect):
+            #         self.enemies[i].x -= self.enemies[i].dx
+            #         self.enemies[i].y -= self.enemies[i].dy
+            #         enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
             if player_rect.colliderect(enemy_rect):
                 self.gamestate = 0
+
+        self.minnow_tick += delta
+        if self.minnow_tick >= self.minnow_MAX:
+            self.minnow_tick -= self.minnow_MAX
+            self.minnow_frame += 1
+            if self.minnow_frame > self.minnow_MFRAME:
+                self.minnow_frame = 0
 
     def rotate_center(self, image, angle):
 
@@ -375,7 +422,9 @@ class Game():
             if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
                 continue
             for minnow in self.level_one.rooms[i].minnows:
-                pygame.draw.rect(self.screen, self.RED, (self.level_one.rooms[i].x_cord + (minnow[0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
+                x_val = self.level_one.rooms[i].x_cord + (minnow[0] * 20) - self.player.cx
+                y_val = self.level_one.rooms[i].y_cord + (minnow[1] * 20) - self.player.cy
+                self.screen.blit(self.image_minnow[self.minnow_frame], (x_val, y_val))
             for x in range(0, len(self.level_one.rooms[i].tiles)):
                 for y in range(0, len(self.level_one.rooms[i].tiles[0])):
                     x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx

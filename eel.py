@@ -7,8 +7,11 @@ class Eel():
         self.y = 0
         self.w = 30
         self.h = 90
+        self.dx = 0
+        self.dy = 0
         self.pace_points = [[0, 0], [100, 100]]
         self.center = 0
+        self.room = 0
 
         self.SPEED = 0.5
         self.EXTRA_SPEED = 3.8
@@ -54,9 +57,15 @@ class Eel():
             dirX = 1
             if self.x > self.follow_location[0]:
                 dirX = -1
-            self.x += (self.SPEED + (self.EXTRA_SPEED * self.chasing)) * delta * dirX
+            self.dx = (self.SPEED + (self.EXTRA_SPEED * self.chasing)) * delta * dirX
+            self.x += self.dx
+        else:
+            self.dx = 0
         if abs(self.y - self.follow_location[1]) > self.PROX_THRESHOLD:
             dirY = 1
             if self.y > self.follow_location[1]:
                 dirY = -1
-            self.y += (self.SPEED + (self.EXTRA_SPEED * self.chasing)) * delta * dirY
+            self.dy = (self.SPEED + (self.EXTRA_SPEED * self.chasing)) * delta * dirY
+            self.x += self.dy
+        else:
+            self.dy = 0
