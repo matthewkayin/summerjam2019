@@ -50,11 +50,13 @@ class Game():
             self.image_minnow.append(pygame.image.load("res/gfx/minnow_" + str(i) + ".png"))
         self.image_wall = pygame.image.load("res/gfx/wall.png")
         self.image_floor = pygame.image.load("res/gfx/floor.png")
+        self.image_finish = pygame.image.load("res/gfx/") # *finish path
 
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
         self.sound_dash = pygame.mixer.Sound("res/sfx/dash.wav")
         self.sound_capture = pygame.mixer.Sound("res/sfx/capture.wav")
+        self.sound_finish = pygame.mixer.Sound("res/sfx/victory.wav")
         self.sound_eel_attack = pygame.mixer.Sound("res/sfx/eel-attack.wav")
         self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
@@ -76,7 +78,7 @@ class Game():
 
         pygame.mixer.music.play(-1)  # the -1 makes it play forever
         if self.debug:
-            self.game_init()
+            self.game_init(5)
 
         self.running = True
         self.show_fps = self.debug
@@ -88,9 +90,10 @@ class Game():
         self.run()
         self.quit()
 
-    def game_init(self):
+    def game_init(self, room_count):
         self.player = fish.Fish()
-        self.level_one = room.MapMaker(0, 0, 15)
+        self.room_count = room_count
+        self.level_one = room.MapMaker(0, 0, self.room_count)
         self.enemies = []
         num_eels = 0
         for i in range(0, len(self.level_one.rooms)):
@@ -200,7 +203,7 @@ class Game():
             while event != "EMPTY":
                 event = self.ihandler.key_queue()
                 if event == "FISH DASH":
-                    self.game_init()
+                    self.game_init(3)
                     self.gamestate = 1
                     break
             return
@@ -283,17 +286,16 @@ class Game():
         room_y *= self.SCREEN_HEIGHT
         self.player_room = [room_x, room_y]
 
-        # for i in range(0, len(self.level_one.rooms[i].minnows)):
-        #     minnowRect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[i][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[i][1] * 20) - self.player.cy, 20, 20)
-        #     if playerRect.colliderect(minnowRect):
-        #         self.player.energy = self.player.MAX_ENERGY
-        #         del self.level_one.rooms[i].minnows[i]
-        #         break
         for i in range(0, len(self.level_one.rooms)):
             if self.level_one.rooms[i].x_cord != self.player_room[0]:
                 continue
             if self.level_one.rooms[i].y_cord != self.player_room[1]:
                 continue
+            if len(self.level_one.rooms[i].finish) == 1:
+                finish_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].finish[0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].finish[1] * 20) - self.player.cy, 20, 20)
+                if player_rect.colliderect(finish_rect):
+                    self.sound_finish.play()
+                    self.game_init(self.room_count + 2)
             for j in range(0, len(self.level_one.rooms[i].minnows)):
                 minnow_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[j][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[j][1] * 20) - self.player.cy, 20, 20)
                 if player_rect.colliderect(minnow_rect):
@@ -389,6 +391,10 @@ class Game():
                         continue
                     if self.level_one.rooms[i].tiles[x][y] == 5 or self.level_one.rooms[i].tiles[x][y] == 1:
                         self.screen.blit(self.image_wall, (x_val, y_val))
+            if len(self.level_one.rooms[i].finish) == 1:
+                x_val = self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].finish[0] * 20) - self.player.cx
+                y_val = self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].finish[1] * 20) - self.player.cy
+                self.screen.blit(self.image_finish, (x_val, y_val))
 
         # render player
         self.screen.blit(self.rotate_center(self.image_fish[self.player.animation_counter], self.player.angle), (self.player.x, self.player.y))
