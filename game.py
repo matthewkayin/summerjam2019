@@ -431,7 +431,7 @@ class Game():
                     y_val = self.level_one.rooms[i].y_cord + (y * 20) - self.player.cy
                     if x_val + 20 < 0 or x_val >= self.SCREEN_WIDTH or y_val + 20 < 0 or y_val >= self.SCREEN_HEIGHT:
                         continue
-                    if self.level_one.rooms[i].tiles[x][y] == 1 or self.level_one.rooms[i].tiles[x][y] == 1:
+                    if self.level_one.rooms[i].tiles[x][y] == 5 or self.level_one.rooms[i].tiles[x][y] == 1:
                         self.screen.blit(self.image_wall, (x_val, y_val))
 
         # render player
