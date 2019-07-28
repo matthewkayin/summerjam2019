@@ -45,10 +45,12 @@ class Game():
         self.image_fish = []
         for i in range(0, 6):
             self.image_fish.append(pygame.image.load("res/gfx/fish_" + str(i) + ".png"))
+        self.image_wall = pygame.image.load("res/gfx/wall.png")
+        self.image_floor = pygame.image.load("res/gfx/floor.png")
 
         # make sound objects
-        # pygame.mixer.music.load("res/storms.wav")
-        # self.sound_dash = pygame.mixer.Sound("res/sfx/dash.wav")
+        pygame.mixer.music.load("res/sfx/music.wav")
+        self.sound_dash = pygame.mixer.Sound("res/sfx/beep.wav")
         # self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
         pygame.font.init()
@@ -67,7 +69,9 @@ class Game():
             self.joystick_labels.append(self.joystick_label_pool[i])
         self.ihandler = ihandler.IHandler(["AXIS FISH HORIZ", "AXIS FISH VERT", "FISH DASH", "FISH LIGHT"])
 
-        self.game_init()
+        pygame.mixer.music.play(-1)  # the -1 makes it play forever
+        if self.debug:
+            self.game_init()
 
         self.running = True
         self.show_fps = self.debug
@@ -80,7 +84,6 @@ class Game():
         self.quit()
 
     def game_init(self):
-        # pygame.mixer.music.play(-1)  # the -1 makes it play forever
         self.player = fish.Fish()
         self.level_one = room.MapMaker(0, 0, 15)
         self.enemies = []
@@ -164,6 +167,7 @@ class Game():
             while event != "EMPTY":
                 event = self.ihandler.key_queue()
                 if event == "FISH DASH":
+                    self.game_init()
                     self.gamestate = 1
                     break
             return
@@ -267,25 +271,26 @@ class Game():
 
         player_sound = False
         chase = False
-        if self.player.speeding:
-            player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-            for i in range(0, len(self.enemies) - 1):
-                self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
+        player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
+        for i in range(0, len(self.enemies) - 1):
+            player_sound = False
+            chase = False
+            self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
+            if self.player.speeding:
                 if (abs(player_center[0] - self.enemies[i].center[0]) <= self.enemies[i].LISTEN_DIST
                         and abs(player_center[1] - self.enemies[i].center[1]) <= self.enemies[i].LISTEN_DIST):
                     player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
-        player_center = [self.player.x + (self.player.w / 2), self.player.y + (self.player.h / 2)]
-        for i in range(0, len(self.enemies) - 1):
-            self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
             see_dist = self.enemies[i].SEE_DIST
-        if self.player.using_light:
-            see_dist = 300
-        for i in range(0, len(self.enemies) - 1):
+            if self.player.using_light:
+                see_dist = 300
             if (abs(player_center[0] - self.enemies[i].center[0]) <= see_dist
                     and abs(player_center[1] - self.enemies[i].center[1]) <= see_dist):
                 player_sound = [self.player.x + self.player.cx, self.player.y + self.player.cy]
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
+            enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+            if player_rect.colliderect(enemy_rect):
+                self.gamestate = 0
 
     def rotate_center(self, image, angle):
 
@@ -330,7 +335,13 @@ class Game():
                 t = 110
             pygame.draw.circle(mask, (0, 0, 0, t), light_location, radius)
 
-        self.screen.fill(self.GREEN)
+        # self.screen.fill(self.GREEN)
+        # render floor
+        for x in range(0, 2):
+            for y in range(0, 2):
+                x_cord = (x * 640) - self.player.cx
+                y_cord = (y * 640) - self.player.cy
+                self.screen.blit(self.image_floor, (x_cord, y_cord))
 
         # render room
         for i in range(0, len(self.level_one.rooms)):
@@ -347,10 +358,10 @@ class Game():
                     if x_val + 20 < 0 or x_val >= self.SCREEN_WIDTH or y_val + 20 < 0 or y_val >= self.SCREEN_HEIGHT:
                         continue
                     if self.level_one.rooms[i].tiles[x][y] == 1:
-                        pygame.draw.rect(self.screen, self.WHITE, (x_val, y_val, 20, 20), False)
+                        self.screen.blit(self.image_wall, (x_val, y_val))
 
         # render player
-        self.screen.blit(self.rotate_center(self.image_fish[0], self.player.angle), (self.player.x, self.player.y))
+        self.screen.blit(self.rotate_center(self.image_fish[self.player.animation_counter], self.player.angle), (self.player.x, self.player.y))
         # pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # render enemies

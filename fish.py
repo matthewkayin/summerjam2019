@@ -41,6 +41,12 @@ class Fish():
         self.LIGHT_COST = 1 / 4
 
         self.angle = 90
+        self.animation_counter = 2
+        self.animation_tick = 0
+        self.ANIMATION_MAX = 10
+        self.ACOUNTER_MAX = 5
+
+        self.input_got = False
 
     def update(self, delta):
         max_dx = self.dx
@@ -111,11 +117,25 @@ class Fish():
             else:
                 self.energy -= self.LIGHT_COST
 
+        if self.input_got:
+            self.animation_tick += delta
+            if self.animation_tick >= self.ANIMATION_MAX:
+                self.animation_tick -= self.ANIMATION_MAX
+                self.animation_counter += 1
+                if self.animation_counter > self.ACOUNTER_MAX:
+                    self.animation_counter = 0
+        else:
+            self.animation_counter = 2
+            self.animation_tick = 0
+
     def set_direction(self, inputs):
         self.ax = inputs[0] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
         self.ay = inputs[1] * (self.ACC_SPEED + (self.speeding * self.EXTRA_ACC))
         if inputs[0] == 0 and inputs[1] == 0:
+            self.input_got = False
             return
+        else:
+            self.input_got = True
         # if inputs[0] == 0:
         #    if inputs[1] > 0:
         #        self.angle = 270
