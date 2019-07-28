@@ -36,9 +36,9 @@ class Game():
 
         pygame.init()
         if self.debug:
-            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.HWSURFACE)
         else:
-            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN)
+            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), pygame.FULLSCREEN | pygame.HWSURFACE)
         self.clock = pygame.time.Clock()
 
         # make image objects
@@ -53,8 +53,10 @@ class Game():
 
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
-        self.sound_dash = pygame.mixer.Sound("res/sfx/eel-attack.wav")
-        # self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
+        self.sound_dash = pygame.mixer.Sound("res/sfx/dash.wav")
+        self.sound_capture = pygame.mixer.Sound("res/sfx/capture.wav")
+        self.sound_eel_attack = pygame.mixer.Sound("res/sfx/eel-attack.wav")
+        self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
         pygame.font.init()
         self.smallfont = pygame.font.SysFont("Serif", 14)
@@ -214,8 +216,9 @@ class Game():
         self.player.set_direction(player_inputs)
 
         if self.ihandler.get_state("FISH LIGHT"):
-            self.player.using_light = True
-            # self.sound_light.play()
+            if not self.player.using_light:
+                self.sound_light.play()
+                self.player.using_light = True
         else:
             self.player.using_light = False
 
@@ -296,6 +299,7 @@ class Game():
                 if player_rect.colliderect(minnow_rect):
                     self.player.energy = self.player.MAX_ENERGY
                     del self.level_one.rooms[i].minnows[j]
+                    self.sound_light.play()
                     break
 
         player_sound = False
@@ -310,8 +314,8 @@ class Game():
             room_indices.append(i)
 
         for i in range(0, len(self.enemies) - 1):
-            if not self.enemies[i].room in room_indices:
-                continue
+            # if not self.enemies[i].room in room_indices:
+            #    continue
             player_sound = False
             chase = False
             self.enemies[i].center = [self.enemies[i].x + (self.enemies[i].w / 2) - self.player.cx, self.enemies[i].y + (self.enemies[i].h / 2) - self.player.cy]
@@ -328,6 +332,7 @@ class Game():
                 chase = True
             self.enemies[i].update(delta, player_sound, chase)
             enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+            '''
             for i in range(0, len(self.level_one.rooms)):
                 if abs(self.level_one.rooms[i].x_cord - self.player_room[0]) > self.SCREEN_WIDTH:
                     continue
@@ -351,7 +356,9 @@ class Game():
             #         self.enemies[i].x -= self.enemies[i].dx
             #         self.enemies[i].y -= self.enemies[i].dy
             #         enemy_rect = pygame.Rect(self.enemies[i].x, self.enemies[i].y, self.enemies[i].w, self.enemies[i].h)
+            '''
             if player_rect.colliderect(enemy_rect):
+                self.sound_eel_attack.play()
                 self.gamestate = 0
 
         self.minnow_tick += delta
