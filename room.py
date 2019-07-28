@@ -96,13 +96,33 @@ class MapMaker:
         self.rooms = []
         curr_x = x_cord
         curr_y = y_cord
+        room_grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
         starting_room = Room("tbrl_empty", curr_x, curr_y, False, False, False, False)
         self.rooms.append(starting_room)
+        x_grid = random.randint(0, len(room_grid) - 1)
+        y_grid = random.randint(0, len(room_grid) - 1)
+        room_grid[x_grid][y_grid] = 1
         for x in range(0, self.max_rooms):
             dir_set = False
+            # top right bot left
+            possible_direction = [True, True, True, True]
+            if y_grid == 0 or room_grid[x_grid][y_grid - 1] == 1:
+                possible_direction[0] = False
+            if x_grid == 9 or room_grid[x_grid + 1][y_grid] == 1:
+                possible_direction[1] = False
+            if y_grid == 9 or room_grid[x_grid][y_grid + 1] == 1:
+                possible_direction[2] = False
+            if x_grid == 0 or room_grid[x_grid - 1][y_grid] == 1:
+                possible_direction[3] = False
+            if not (possible_direction[0] or possible_direction[1] or possible_direction[2] or possible_direction[3]):
+                dir_set = True
             while not dir_set:
                 direction = random.randint(0, 3)
-                if direction == 0:
+                if direction == 0 and possible_direction[0]:
                     if not self.rooms[x].top:
                         curr_y -= 720
                         self.rooms[x].top_used()
@@ -110,7 +130,7 @@ class MapMaker:
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, True, False, False)
                         self.rooms.append(new_room)
                         dir_set = True
-                elif direction == 1:
+                elif direction == 1 and possible_direction[1]:
                     if not self.rooms[x].right:
                         curr_x += 1280
                         self.rooms[x].right_used()
@@ -118,7 +138,7 @@ class MapMaker:
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, False, True)
                         self.rooms.append(new_room)
                         dir_set = True
-                elif direction == 2:
+                elif direction == 2 and possible_direction[2]:
                     if not self.rooms[x].bottom:
                         curr_y += 720
                         self.rooms[x].bottom_used()
@@ -126,7 +146,7 @@ class MapMaker:
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, True, False, False, False)
                         self.rooms.append(new_room)
                         dir_set = True
-                else:
+                elif x_grid > 0 and possible_direction[3]:
                     if not self.rooms[x].left:
                         curr_x -= 1280
                         self.rooms[x].left_used()
