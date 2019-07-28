@@ -53,7 +53,7 @@ class Game():
 
         # make sound objects
         pygame.mixer.music.load("res/sfx/music.wav")
-        self.sound_dash = pygame.mixer.Sound("res/sfx/eel-close-two.wav")
+        self.sound_dash = pygame.mixer.Sound("res/sfx/eel-attack.wav")
         # self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
         pygame.font.init()
