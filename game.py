@@ -232,12 +232,23 @@ class Game():
         room_y *= self.SCREEN_HEIGHT
         self.player_room = [room_x, room_y]
 
-        # for i in range(0, len(self.room.minnows)):
-        #     minnowRect = pygame.Rect(self.room.x_cord + (self.room.minnows[i][0] * 20) - self.player.cx, self.room.y_cord + (self.room.minnows[i][1] * 20) - self.player.cy, 20, 20)
+        # for i in range(0, len(self.level_one.rooms[i].minnows)):
+        #     minnowRect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[i][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[i][1] * 20) - self.player.cy, 20, 20)
         #     if playerRect.colliderect(minnowRect):
         #         self.player.energy = self.player.MAX_ENERGY
-        #         del self.room.minnows[i]
+        #         del self.level_one.rooms[i].minnows[i]
         #         break
+        for i in range(0, len(self.level_one.rooms)):
+            if self.level_one.rooms[i].x_cord != self.player_room[0]:
+                continue
+            if self.level_one.rooms[i].y_cord != self.player_room[1]:
+                continue
+            for j in range(0, len(self.level_one.rooms[i].minnows)):
+                minnow_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].minnows[i][0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].minnows[i][1] * 20) - self.player.cy, 20, 20)
+                if player_rect.colliderect(minnow_rect):
+                    self.player.energy = self.player.MAX_ENERGY
+                    del self.level_one.rooms[i].minnows[j]
+                    break
 
         player_sound = False
         chase = False
@@ -303,7 +314,7 @@ class Game():
             if abs(self.level_one.rooms[i].y_cord - self.player_room[1]) > self.SCREEN_HEIGHT:
                 continue
             for minnow in self.level_one.rooms[i].minnows:
-                pygame.draw.rect(self.screen, self.RED, (self.room.x_cord + (minnow[0] * 20) - self.player.cx, self.room.y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
+                pygame.draw.rect(self.screen, self.RED, (self.level_one.rooms[i].x_cord + (minnow[0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (minnow[1] * 20) - self.player.cy, 20, 20), False)
             for x in range(0, len(self.level_one.rooms[i].tiles)):
                 for y in range(0, len(self.level_one.rooms[i].tiles[0])):
                     x_val = self.level_one.rooms[i].x_cord + (x * 20) - self.player.cx
