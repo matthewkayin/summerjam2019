@@ -157,6 +157,6 @@ class MapMaker:
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False, True)
                         self.rooms.append(new_room)
                         dir_set = True
-        for x in range(0, len(self.rooms) - 1):
+        for x in range(0, len(self.rooms)):
             self.rooms[x].close_entrances()
         self.rooms[len(self.rooms) - 1].generate_end()
