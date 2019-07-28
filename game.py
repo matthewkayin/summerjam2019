@@ -51,7 +51,7 @@ class Game():
             self.image_minnow.append(pygame.image.load("res/gfx/minnow_" + str(i) + ".png"))
         self.image_wall = pygame.image.load("res/gfx/wall.png")
         self.image_floor = pygame.image.load("res/gfx/floor.png")
-        self.image_finish = pygame.image.load("res/gfx/finish.png")
+        # self.image_finish = pygame.image.load("res/gfx/") # *finish path
         self.image_title = pygame.image.load("res/gfx/title.png")
 
         # make sound objects
@@ -225,7 +225,7 @@ class Game():
         self.player.set_direction(player_inputs)
 
         if self.ihandler.get_state("FISH LIGHT"):
-            if not self.player.using_light:
+            if not self.player.using_light and self.player.energy >= self.player.DASH_COST:
                 self.sound_light.play()
                 self.player.using_light = True
         else:
