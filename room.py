@@ -33,8 +33,9 @@ class Room:
             while not placed:
                 minno_x = random.randint(0, len(self.tiles))
                 minno_y = random.randint(0, len(self.tiles[0]))
-                if self.tiles[x][y] == 0:
-                    self.tiles[x][y] = 2
+                if self.tiles[minno_x][minno_y] == 0:
+                    self.tiles[minno_x][minno_y] = 2
+                    self.minnows.append([minno_x, minno_y])
                     placed = True
 
         if self.top:
