@@ -42,11 +42,14 @@ class Game():
         self.clock = pygame.time.Clock()
 
         # make image objects
-        # self.image_ball = pygame.image.load("res/ball.png")
+        self.image_fish = []
+        for i in range(0, 6):
+            self.image_fish.append(pygame.image.load("res/gfx/fish_" + str(i) + ".png"))
 
         # make sound objects
         # pygame.mixer.music.load("res/storms.wav")
-        # self.beep = pygame.mixer.Sound("res/beep.wav")
+        # self.sound_dash = pygame.mixer.Sound("res/sfx/dash.wav")
+        # self.sound_light = pygame.mixer.Sound("res/sfx/light.wav")
 
         pygame.font.init()
         self.smallfont = pygame.font.SysFont("Serif", 14)
@@ -70,6 +73,8 @@ class Game():
         self.show_fps = self.debug
 
         self.gamestate = 0
+        if self.debug:
+            self.gamestate = 1
 
         self.run()
         self.quit()
@@ -168,11 +173,14 @@ class Game():
 
         if self.ihandler.get_state("FISH LIGHT"):
             self.player.using_light = True
+            self.sound_light.play()
         else:
             self.player.using_light = False
 
         if self.ihandler.get_state("FISH DASH"):
-            self.player.dash(player_inputs)
+            if not self.player.speeding:
+                self.sound_dash.play()
+                self.player.dash(player_inputs)
         else:
             self.player.speeding = False
 
@@ -325,7 +333,8 @@ class Game():
                         pygame.draw.rect(self.screen, self.WHITE, (x_val, y_val, 20, 20), False)
 
         # render player
-        pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
+        self.screen.blit(self.image_fish[0], (self.player.x, self.player.y))
+        # pygame.draw.rect(self.screen, self.RED, (self.player.x, self.player.y, self.player.w, self.player.h), False)
 
         # render enemies
         pygame.draw.rect(self.screen, self.RED, (self.enemy.x - self.player.cx, self.enemy.y - self.player.cy, self.enemy.w, self.enemy.h), False)
