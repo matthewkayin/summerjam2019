@@ -87,7 +87,7 @@ class Game():
 
         pygame.mixer.music.play(-1)  # the -1 makes it play forever
         if self.debug:
-            self.game_init(5)
+            self.game_init(2)
 
         self.running = True
         self.show_fps = self.debug
@@ -218,7 +218,7 @@ class Game():
             while event != "EMPTY":
                 event = self.ihandler.key_queue()
                 if event == "FISH DASH":
-                    self.game_init(3)
+                    self.game_init(2)
                     self.gamestate = 1
                     break
             return
@@ -306,7 +306,7 @@ class Game():
                 continue
             if self.level_one.rooms[i].y_cord != self.player_room[1]:
                 continue
-            if len(self.level_one.rooms[i].finish) == 1:
+            if len(self.level_one.rooms[i].finish) == 2:
                 finish_rect = pygame.Rect(self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].finish[0] * 20) - self.player.cx, self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].finish[1] * 20) - self.player.cy, 20, 20)
                 if player_rect.colliderect(finish_rect):
                     self.sound_finish.play()
@@ -414,7 +414,7 @@ class Game():
                         continue
                     if self.level_one.rooms[i].tiles[x][y] == 5 or self.level_one.rooms[i].tiles[x][y] == 1:
                         self.screen.blit(self.image_wall, (x_val, y_val))
-            if len(self.level_one.rooms[i].finish) == 1:
+            if len(self.level_one.rooms[i].finish) == 2:
                 x_val = self.level_one.rooms[i].x_cord + (self.level_one.rooms[i].finish[0] * 20) - self.player.cx
                 y_val = self.level_one.rooms[i].y_cord + (self.level_one.rooms[i].finish[1] * 20) - self.player.cy
                 self.screen.blit(self.image_pearl, (x_val, y_val))

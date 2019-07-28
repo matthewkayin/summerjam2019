@@ -25,7 +25,7 @@ class Room:
             for y in range(0, len(data)):
                 self.tiles[x].append(data[y][x])
 
-        num_minnos = 1
+        num_minnos = 3
         for i in range(0, num_minnos):
             placed = False
             while not placed:
@@ -157,6 +157,6 @@ class MapMaker:
                         new_room = Room(self.possible_rooms[map], curr_x, curr_y, False, False, True, False, True)
                         self.rooms.append(new_room)
                         dir_set = True
-        for x in range(0, len(self.rooms) - 1):
+        for x in range(0, len(self.rooms)):
             self.rooms[x].close_entrances()
         self.rooms[len(self.rooms) - 1].generate_end()
